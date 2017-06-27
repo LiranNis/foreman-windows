@@ -14,6 +14,7 @@ FEATURES:
 - ...
 
 TODO:
+- Add option to enable Ansible in extraCommands
 - userdata template
 
 Source: [foreman-wimaging](https://github.com/kireevco/foreman-wimaging)

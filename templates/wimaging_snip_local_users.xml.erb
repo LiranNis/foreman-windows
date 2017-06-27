@@ -1,0 +1,24 @@
+<%#
+kind: snippet
+name: Wimaging local users
+oses:
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows
+# create extra local user accounts for debugging; otherwise you might be locked out.
+# Warning: Commented out by default
+%>
+<!--
+     <LocalAccounts>
+         <LocalAccount wcm:action="add">
+             <Password>
+               <Value>Pa55w@rd=</Value>
+               <PlainText>true</PlainText>
+             </Password>
+             <Name>admin</Name>
+             <Group>Administrators</Group>
+         </LocalAccount>
+     </LocalAccounts>
+-->

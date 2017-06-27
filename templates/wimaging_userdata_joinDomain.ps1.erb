@@ -1,0 +1,34 @@
+<%#
+kind: user_data
+name: Wimaging joinDomain.ps1
+oses:
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows
+# Parameters are expected to be set in Foreman (globally or per group/host)
+params:
+- domainJoinAccount: administrator@domain.com # use tthis account to join domain. If set, domain join will run
+- domainJoinAccountPassword: Password for the domain Admin account
+- computerOU: OU=Computers,CN=domain,CN=com # Place the computer account in specified Organizational Unit
+- computerDomain: domain.com # domain to join, optional
+%>
+<%
+if @host.params['computerDomain']
+  domain_name = @host.params['computerDomain']
+else
+  domain_name = @host.domain
+end
+if @host.params['computerOU'] and ( @host.params['computerOU'] != 'automatic' and @host.params['computerOU'] != 'default' )
+  computer_ou = @host.params['computerOU']
+elsif snippet('Wimaging OU from Hostgroup') and @host.params['computerOU'] == 'automatic'
+  computer_ou = snippet('Wimaging OU from Hostgroup')
+else
+  computer_ou = false 
+end
+%>
+$user = '<%= @host.params['domainJoinAccount'] -%>'
+$passwd = ConvertTo-SecureString -String '<%= @host.params['domainJoinAccountPassword'] -%>' -AsPlainText -Force
+$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $user, $passwd
+Add-Computer -DomainName '<%= domain_name %>' -Credential $Credential <% if computer_ou %>-OUPath '<%= computer_ou %>'<% end %> -PassThru

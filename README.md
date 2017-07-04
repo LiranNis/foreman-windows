@@ -66,11 +66,13 @@ Simple as that. For Bare Metal hosts [Foreman discovery](https://github.com/thef
   2. Optionally, join domain
   3. Optionally, execute extra scripts (eg, install puppet)
   3. Securely cleanup (sensitive) scripts using [`SDelete.exe`](https://technet.microsoft.com/en-us/sysinternals/bb897443.aspx)
-2. Reboot the host; ready for further configuration by Puppet, SCCM ect.
+2. Reboot the host; ready for further configuration by Puppet, SCCM etc.
 
 ## Acknowledgments
 foreman-windows is a fork of [wimaging](https://github.com/kireevco/wimaging) and its subprojects, with the great work of [Dmitry Kireev](https://github.com/kireevco).
+
 `wimaging` has a merged a fork of [wimaging-ng](https://github.com/helge000/wimaging-ng). Many thanks to [Daniel Helgenberger](https://github.com/helge000) for a large contribution portion.
+
 SDelete and other PStools by SysInternals are the work of [Mark Russinovich](http://blogs.technet.com/b/markrussinovich/about.aspx).
 
 ## License

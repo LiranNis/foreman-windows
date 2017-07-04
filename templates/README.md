@@ -14,6 +14,8 @@ FEATURES:
 - ...
 
 TODO:
+- Add option to enable Ansible in extraCommands
 - userdata template
+- disable ipv6
 
 Source: [foreman-wimaging](https://github.com/kireevco/foreman-wimaging)

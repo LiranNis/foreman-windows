@@ -39,7 +39,7 @@ Take special care to __Root password hash = `Base64`__. The templates do not ren
 Also, changing the encoding does not [apply do existing hosts](http://theforeman.org/manuals/1.9/index.html#3.5.2ConfigurationOptions)
 
 ## III. Add provision templates
-Head to _Hosts -> Provisioning Templates -> New_ and create a template for each of the files in `./foreman`.
+Head to _Hosts -> Provisioning Templates -> New_ and create a template for each of the files in `./templates`.
 You can copy / paste them or upload the file. Assign each of those templates to your Windows OS (does not apply to snippets).
 The naming of the templates is a suggestion and up to you. Keep in mind, this does __not__ apply to snippets! There, the name is important.
 
@@ -48,15 +48,15 @@ Since it is very likely you will need to edit these templates to your needs read
 ### Required templates
 #### Wimaging Finish
 - Name: `Wimaging Finish`
-- Kind: `finish`
+- Type: `Finish template`
 
 #### Wimaging unattend.xml
 - Name: `Wimaging unattend.xml`
-- Type: Provision
+- Type: `Provisioning template`
 
 #### Wimaging peSetup.cmd
 - Name: `Wimaging peSetup.cmd`
-- Kind: `script`
+- Type: `Script template`
 
 __Note:__ To get the download folders nicely, the [`wget64.exe`](https://www.gnu.org/software/wget/manual/wget.html) commands in this template might need tweaking. This could
 especially be necessary if you intend to use the `extraFinishCommands` snippet.
@@ -65,16 +65,16 @@ This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be st
 
 #### Wimaging PXELinux
 - Name: `Wimaging PXELinux`
-- Kind: `PXE Linux`
+- Type: `PXELinux template`
 
 ### Optional templates
 #### Wimaging joinDomain.ps1
 - Name: `Wimaging joinDomain.ps1`
-- Kind: `user_data`
+- Type: `User data template`
 
 #### Wimaging local users
 - Name: `Wimaging local users`
-- Kind: Snippet
+- Type: Snippet
 
 __Note:__ This snippet creates extra users in the unattended stage.
 This may be very useful for debugging early stages of your deployment; since you
@@ -92,7 +92,7 @@ Note,  the string `Password` is appended your passwords. You can try this out wi
 
 #### Wimaging extraFinishCommands
 - Name: `Wimaging extraFinishCommands`
-- Kind: Snippet
+- Type: Snippet
 
 __Note:__ The commands here are executed at the last stage just before finishing host building.
 Make sure they get executed in a synchronous way (eg. do not run in background like msiexec).
@@ -100,7 +100,7 @@ Otherwise the following reboot might kill them.
 
 #### Wimaging OU from Hostgroup
 - Name: `Wimaging OU from Hostgroup`
-- Kind: Snippet
+- Type: Snippet
 
 __Note__: This snippet may be used to generate the computer OU from the host's hostgroup and domain.
 
@@ -113,7 +113,7 @@ For each of your Windows versions add a new installation media pointing to the r
 Eg, `http://winmirror.domain.com/pub/win81x64`. Assign them to your operatingsystem.
 
 ## V. Add partition table
-Add the diskpart script from `./foreman/wimaging_partition_table.erb` as new partition table. Assign it to your windows OS.
+Add the diskpart script from `./templates/wimaging_partition_table.erb` as new partition table. Assign it to your windows OS.
 
 ## VI. Define templates
 Link all the created templates as well as the installation media and partition table to the OS:
@@ -143,8 +143,8 @@ The following parameters are only applied if they exist. Some, like `domainAdmin
 - `systemTimeZone`: Pacific Standard Time - see [MS TimeZone Naming](https://msdn.microsoft.com/en-us/library/ms912391%28v=winembedded.11%29.aspx)
 - `localAdminiAccountDisabled`: false - will keep the local administrator account disabled (default windows)
 - `ntpSever`: time.windows.com,other.time.server - ntp server to use
-- `domainAdminAccount`: administrator@domain.com - use this account to join the computer to a domain
-- `domainAdminAccountPassword`: Pa55w@rd - Password for the domain Admin account
+- `domainJoinAccount`: administrator@domain.com - use this account to join the computer to a domain
+- `domainJoinAccountPassword`: Pa55w@rd - Password for the domain Admin account
 - `computerOU`: OU=Computers,CN=domain,CN=com - Place the computer account in specified Organizational Unit
 - `computerOuSuffix`: Used if `computerOU` is not present to generate the computer OU from hostgroup and hostdomain. `computerOU` takes precedence! Note, the OU must still be manually created in active directory.
 - `computerDomain`: domain.com # domain to join

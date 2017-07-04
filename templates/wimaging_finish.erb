@@ -110,16 +110,16 @@ params:
   <% if foreman_debug != true -%>
     echo Cleaning up extras
     sdelete.exe -accepteula -p 2 -r c:\extras
-    echo Safely removing c:\deploy
-    sdelete.exe -accepteula -p 2 -r c:\deploy  
 
     echo remove leftover directories
     rmdir /s /q c:\wimaging
     rmdir /s /q c:\minint
-    rmdir /s /q c:\deploy
-    rmdir /s /q c:\extras
-
-    echo rebooting...
-    shutdown /r /t 5
+	
+    echo rebooting in 10 seconds...
+    shutdown /r /t 10
+	
+    echo Safely removing c:\deploy
+    sdelete.exe -accepteula -p 2 -r c:\deploy  
+	
   <% end -%>  
 <% end -%>

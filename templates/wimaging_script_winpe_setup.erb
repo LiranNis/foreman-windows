@@ -63,7 +63,7 @@ IF not exist C:\Windows\Setup\Scripts (md C:\Windows\Setup\Scripts)
 echo call C:\deploy\foreman-finish.bat ^> c:\foreman.log 2^>^&1 > C:\Windows\Setup\Scripts\SetupComplete.cmd
 
 <% if foreman_url('user_data') %>
-  echo Downlodiang user data
+  echo Downloading user data
   %WGET% <%= foreman_url('user_data') %> -O c:\deploy\joinDomain.ps1
 <% end -%>
   

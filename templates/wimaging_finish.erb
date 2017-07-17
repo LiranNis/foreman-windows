@@ -13,25 +13,29 @@ params:
 - windowsLicenseOwner: Company, INC # Legal owner of the Windows license key
 - localAdminAccountDisabled: false
 - ntpSever: time.windows.com,other.time.server
-- domainAdminAccount: administrator@domain.com # use this account to join domain
-- domainAdminAccountPassword: Password for the domain Admin account
+- domainJoinAccount: administrator@domain.com # use this account to join domain
+- domainJoinAccountPassword: Password for the domain Admin account
 - computerOU: OU=Computers,CN=domain,CN=com # Place the computer account in specified Organizational Unit
 - computerDomain: domain.com # domain to join
+- disableIPv6: false
 - foremanDebug: false
 %>
 <%
   # safemode renderer does not support unary negation
-  pm_set = @host.puppetmaster.empty? ? false : true
-  puppet_enabled = pm_set || @host.params['force-puppet'] && @host.params['force-puppet'] == 'true'
   salt_enabled = @host.params['salt_master'] ? true : false
   chef_enabled = @host.respond_to?(:chef_proxy) && @host.chef_proxy
   foreman_debug = @host.params['foremanDebug'] == 'true' ? true : false
-%>
+-%>
 
 @echo off
+
 <% unless @host.params['localAdminAccountDisabled'] -%>
   echo Activating administrator
   net user administrator /active:yes
+<% end -%>
+
+<% if @host.params['disableIPv6'] -%>
+  reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponent /d 0xFFFFFFFF /f
 <% end -%>
 
 <% if @host.pxe_build? %>
@@ -89,37 +93,29 @@ params:
     sdelete.exe -accepteula -p 2 -r c:\wimaging
   <% end %>
 
-  <% if puppet_enabled %>
-    echo Installing puppet
-    start /w "" msiexec /qn /i C:\extras\puppet.msi PUPPET_AGENT_STARTUP_MODE=Manual PUPPET_MASTER_SERVER=<%= @host.puppetmaster -%> PUPPET_AGENT_ACCOUNT_DOMAIN=<%= @host.domain -%> PUPPET_AGENT_ACCOUNT_USER=administrator PUPPET_AGENT_ACCOUNT_PASSWORD="<%= @host.params['domainAdminAccountPassword'] -%>"
-    echo set puppet to auto start
-    sc config puppet start= auto
-    sc query puppet
-    rem this is rather hacky
-    rem call "C:\Program Files\Puppet Labs\Puppet\bin\puppet.bat" agent -t -v --tags no_such_tag
-  <% end -%>
-
   <% if snippets "Wimaging extraFinishCommands" -%>
     echo Running extra commands
     <%= snippets "Wimaging extraFinishCommands" %>
   <% end -%>
-
-  echo Tell foreman build has finished
-  wget.exe <%= foreman_url('built') %>
+  
+  <% unless @host.params['rundeckBuilt'] -%>
+    echo Tell foreman build has finished
+    wget.exe <%= foreman_url('built') %>
+  <% end -%>
 
   <% if foreman_debug != true -%>
-    echo Cleaning up extras
-    sdelete.exe -accepteula -p 2 -r c:\extras
-
-    echo remove leftover directories
-    rmdir /s /q c:\wimaging
-    rmdir /s /q c:\minint
-	
-    echo rebooting in 10 seconds...
-    shutdown /r /t 10
-	
-    echo Safely removing c:\deploy
-    sdelete.exe -accepteula -p 2 -r c:\deploy  
-	
+     echo Cleaning up extras
+     sdelete.exe -accepteula -p 2 -r c:\extras
+    
+     REM echo remove leftover directories
+     REM rmdir /s /q c:\wimaging
+     REM rmdir /s /q c:\minint
+     REM rmdir /s /q c:\extras
+    
+     echo rebooting in 10 seconds...
+     shutdown /r /t 10
+     
+     echo Safely removing c:\deploy
+     sdelete.exe -accepteula -p 2 -r c:\deploy  
   <% end -%>  
 <% end -%>

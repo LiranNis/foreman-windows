@@ -148,15 +148,16 @@ The following parameters are only applied if they exist. Some, like `domainAdmin
 - `computerOU`: OU=Computers,CN=domain,CN=com - Place the computer account in specified Organizational Unit
 - `computerOuSuffix`: Used if `computerOU` is not present to generate the computer OU from hostgroup and hostdomain. `computerOU` takes precedence! Note, the OU must still be manually created in active directory.
 - `computerDomain`: domain.com # domain to join
+- `disableIPv6`: Allows you to disable IPv6 through the registry
 
 #### Optional - Rundeck
-- `runRundeck` - Call rundeck at the end of the finish script, make sure you wait till the host will end the boot which allows the server to apply GPO settings (such as enable WinRM), the host name will be sent through "hosts" argument
+- `runRundeck`: Call rundeck at the end of the finish script, make sure you wait till the host will end the boot which allows the server to apply GPO settings (such as enable WinRM), the host name will be sent through "hosts" argument
 **Set these parameters only if `runRundeck` is true**
-- `rundeckURL` - The URL of the Rundeck server, for example: https://www.rundeck.domain
-- `rundeckJobId` - The job id of the rundeck job
-- `rundeckAuthToken` - The authentication token of your Rundeck user
-- `rundeckExtraArgString` - Not required, if you need to send more arguments to the Rundeck, for example: -environment hardware -server windows2012
-- `rundeckBuilt` - Foreman built url will be sent to the rundeck as "built_url" parameters and won't be called within foreman templates, allows you to mark the host as built only after rundeck finished to run, for example, you can run ansible-playbook and at the end to call role that will mark the host as built, see this role for example: [win_foreman_built](https://github.com/LiranNis/win_foreman_built).
+- `rundeckURL`: The URL of the Rundeck server, for example: https://www.rundeck.domain
+- `rundeckJobId`: The job id of the rundeck job
+- `rundeckAuthToken`: The authentication token of your Rundeck user
+- `rundeckExtraArgString`: Not required, if you need to send more arguments to the Rundeck, for example: -environment hardware -server windows2012
+- `rundeckBuilt`: Foreman built url will be sent to the rundeck as "built_url" parameters and won't be called within foreman templates, allows you to mark the host as built only after rundeck finished to run, for example, you can run ansible-playbook and at the end to call role that will mark the host as built, see this role for example: [win_foreman_built](https://github.com/LiranNis/win_foreman_built).
 
 ## VII. Testing and Troubleshooting
 The templates most likely need a lot of testing to work. This is not covered here; though some hints how to start. You should proceed in this order:

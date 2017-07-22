@@ -64,7 +64,7 @@ Simple as that. For Bare Metal hosts [Foreman discovery](https://github.com/thef
   1. Set the time server; sync time
   2. Optionally, the local administrator account is activated
   2. Optionally, join domain
-  3. Optionally, execute extra scripts (eg, install puppet)
+  3. Optionally, execute extra scripts (eg, install puppet, run a rundeck job)
   3. Securely cleanup (sensitive) scripts using [`SDelete.exe`](https://technet.microsoft.com/en-us/sysinternals/bb897443.aspx)
 2. Reboot the host; ready for further configuration by Puppet, SCCM etc.
 

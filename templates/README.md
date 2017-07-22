@@ -10,12 +10,13 @@ This allows to have flexible template-based opensource provisioning of Windows s
 
 FEATURES:
 - Template-based provisioning of Windows hosts
-- Auto register in puppet
-- ...
+- Join domain
+- Disable IPv6
+- Run a rundeck job
+- Auto register in puppet - Needs testing after changes
 
 TODO:
 - Add option to enable Ansible in extraCommands
 - userdata template
-- disable ipv6
 
 Source: [foreman-wimaging](https://github.com/kireevco/foreman-wimaging)

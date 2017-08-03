@@ -13,6 +13,7 @@ FEATURES:
 - Join domain
 - Disable IPv6
 - Run a rundeck job
+- Send `foreman_url('built')` to rundeck as `built_url` in order to send finish at the end of the rundeck job
 - Auto register in puppet - Needs testing after changes
 
 TODO:

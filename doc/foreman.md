@@ -19,6 +19,8 @@ Moving templates folder to the foreman server and running `sh inject_hammer.sh u
 - Windows Server 2012 R2
 - Windows Server 2016
 
+Step VI will be automatic after [this feature](http://projects.theforeman.org/issues/19230) will be added
+
 ## I. Download wimboot
 Start simple:
 - Add [wimboot](http://git.ipxe.org/releases/wimboot/wimboot-latest.zip) bootloader to `/var/lib/tftpboot/boot/` on your PXE server.

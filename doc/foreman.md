@@ -11,6 +11,14 @@ Now as you have your WIM images ready, it's time to configure your foreman insta
 - Link provisioning templates to OS
 - Do a lot of testing
 
+### Hammer automation
+Moving templates folder to the foreman server and running `sh inject_hammer.sh` will automaticlly do steps II,III,V using hammer cli  for versions:
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows Server 2016
+
 ## I. Download wimboot
 Start simple:
 - Add [wimboot](http://git.ipxe.org/releases/wimboot/wimboot-latest.zip) bootloader to `/var/lib/tftpboot/boot/` on your PXE server.

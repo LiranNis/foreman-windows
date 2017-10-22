@@ -46,8 +46,12 @@ $drivers_dir = ".\sources\${os}\drivers"
 # Imagex Location
 #$imagex = "C:\Program Files (x86)\Windows Kits\8.1\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\imagex.exe"
 
-# Windows ADK (default:c:\Program Files (x86)\Windows Kits\8.0\Assessment and Deployment Kit)
-#$windows_adk_path="C:\Program Files (x86)\Windows Kits\8.1\Assessment and Deployment Kit"
+# Windows ADK (default: the higher the exists in "C:\Program Files (x86)\Windows Kits\" 10/8.1/8)
+#$windows_adk_path="C:\Program Files (x86)\Windows Kits\10.0\Assessment and Deployment Kit"
+
+# WMI cab location
+$install_wmi = $true
+$wmi_cab_path="${windows_adk_path}\Windows Preinstallation Environment\amd64\WinPE_OCs\en-us\WinPE-WMI_en-us.cab" # tested on 8.1 and 10.0
 
 # WSUS Offline location. Must point to root that contains subfolders for distributions
 #$wsus_offline_dir = "\wsusoffline\client"

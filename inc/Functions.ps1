@@ -341,6 +341,12 @@ function AddUpdates([string]$updates_dir, [string]$mount_dir, [string]$wim_image
 	}
 }
 
+function AddPackage([string]$package_path, [string]$mount_dir) {
+    Write-Host "Adding Package $package_path" -foregroundcolor "yellow"
+    Invoke-Expression "& '$dism' /image:$mount_dir /Add-Package /PackagePath:'$package_path'"
+
+}
+
 function AddTools([string]$tools_dir, [string]$mount_dir) {
 	Write-Host "Adding Tools" -foregroundcolor "yellow"	
 	if ( $(Get-ChildItem $mount_dir | Measure-Object).count -ne 0) {

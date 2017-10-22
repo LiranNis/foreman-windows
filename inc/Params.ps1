@@ -21,9 +21,11 @@ if ($boot) {
 }
 
 if ($windows_adk_path -eq $null) {
-	if ($os -eq "server-2012r2" -or $os -eq "win7x64") {
+	if (test-path "c:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit") {
+		$windows_adk_path="c:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit"
+	} elseif (test-path "c:\Program Files (x86)\Windows Kits\8.1\Assessment and Deployment Kit") {
 		$windows_adk_path="c:\Program Files (x86)\Windows Kits\8.1\Assessment and Deployment Kit"
-	} else {
+	} elseif (test-path "c:\Program Files (x86)\Windows Kits\8.0\Assessment and Deployment Kit") {
 		$windows_adk_path="c:\Program Files (x86)\Windows Kits\8.0\Assessment and Deployment Kit"
 	}
 }

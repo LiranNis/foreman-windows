@@ -13,11 +13,10 @@ params:
 - windowsLicenseKey: ABCDE-ABCDE-ABCDE-ABCDE-ABCDE # Valid Windows license key
 - windowsLicenseOwner: Company, INC # Legal owner of the Windows license key
 - extraFilesCutDirs: directories wget should strip when downloading extra files.
-%>
-<%
-  cut_dirs = @host.params['extraFilesCutDirs'] ? @host.params['extraFilesCutDirs'] : '3'
-%>
+-%>
+<% cut_dirs = @host.params['extraFilesCutDirs'] ? @host.params['extraFilesCutDirs'] : '3' -%>
 @echo off
+
 set WGET=x:\wimaging\deploy\wget64.exe
 
 <%= @host.diskLayout %>

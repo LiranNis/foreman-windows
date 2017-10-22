@@ -10,9 +10,10 @@ if ($os -like "windows-pe-*")
 {
 	# If working on 1-imaged boot.wim (winpe)	
 	MountWim $wim_file $mount_dir $wim_image_name
-	AddDrivers $drivers_dir $mount_dir	
-	AddUpdates $update_dir $mount_dir	
-	AddTools $tools_dir $mount_dir	
+	AddDrivers $drivers_dir $mount_dir
+	AddUpdates $update_dir $mount_dir
+	AddTools $tools_dir $mount_dir
+    if ($install_wmi -eq $true) { AddPackage $wmi_cab_path $mount_dir}
 	SafeUnmountWim $mount_dir
 }
 else

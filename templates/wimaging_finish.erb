@@ -34,6 +34,41 @@ params:
   net user administrator /active:yes
 <% end -%>
 
+<% subnet = @host.subnet -%>
+<% if subnet.respond_to?(:dhcp_boot_mode?) -%>
+<% dhcp = subnet.dhcp_boot_mode? && !@static -%>
+<% else -%>
+<% dhcp = !@static -%>
+<% end -%>
+
+<% if !dhcp -%>
+SETLOCAL EnableDelayedExpansion
+set MainMAC=<%= @host.mac %>
+set MainMAC=%MainMAC::=-%
+for /f "delims=" %%a in ('ipconfig /all') do (
+    set line=%%a
+    if not "!line:~0,1!"==" " if not "!line:adapter=!"=="!line!" (
+        set name=!line:*adapter =!
+        set name=!name::=!
+    )
+    for /f "tokens=1,2,*" %%b in ("%%a") do (
+        if "%%b %%c"=="Physical Address." (
+            set mac=%%d
+            set mac=!mac:*: =!
+            echo !name!: !mac!
+            call set mactest=%%MainMAC:!mac!=%%
+            if not "!MainMAC!"=="!mactest!" (
+                netsh int ip set address "!name!" source=static address=<%= @host.ip %> mask=<%= subnet.mask %> gateway=<%= subnet.gateway %>
+				netsh int ip set dnsservers "!name!" source=static address=<%= subnet.dns_primary %>
+<% if subnet.dns_secondary!="" -%>
+				netsh int ip set dnsservers "!name!" source=static address=<%= subnet.dns_secondary %>
+<% end -%>
+            )
+        )
+    )
+)
+<% end -%>
+
 <% if @host.params['disableIPv6'] -%>
   reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponent /d 0xFFFFFFFF /f
 <% end -%>

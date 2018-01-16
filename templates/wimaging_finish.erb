@@ -121,11 +121,11 @@ for /f "delims=" %%a in ('ipconfig /all') do (
   
   <% if foreman_debug != true -%>
     echo Safely remove wimaging files
-    sdelete.exe -accepteula -p 2 -r c:\wimaging
+    sdelete.exe -accepteula -p 2 -s c:\wimaging
     sdelete.exe -accepteula -p 2 c:\Windows\Panther\unattend.xml
     sdelete.exe -accepteula -p 2 C:\Windows\Setup\Scripts\SetupComplete.cmd
-    sdelete.exe -accepteula -p 2 -r c:\minint
-    sdelete.exe -accepteula -p 2 -r c:\wimaging
+    sdelete.exe -accepteula -p 2 -s c:\minint
+    sdelete.exe -accepteula -p 2 -s c:\wimaging
   <% end %>
 
   <% if snippets "Wimaging extraFinishCommands" -%>
@@ -139,18 +139,16 @@ for /f "delims=" %%a in ('ipconfig /all') do (
   <% end -%>
 
   <% if foreman_debug != true -%>
-     echo Cleaning up extras
-     sdelete.exe -accepteula -p 2 -r c:\extras
+    echo Cleaning up extras
+    sdelete.exe -accepteula -p 2 -s c:\extras
     
-     REM echo remove leftover directories
-     REM rmdir /s /q c:\wimaging
-     REM rmdir /s /q c:\minint
-     REM rmdir /s /q c:\extras
+    echo rebooting in 10 seconds...
+    shutdown /r /t 10
     
-     echo rebooting in 10 seconds...
-     shutdown /r /t 10
-     
-     echo Safely removing c:\deploy
-     sdelete.exe -accepteula -p 2 -r c:\deploy  
+    echo Safely removing foreman.log
+    sdelete.exe -accepteula -p 2 -s c:\foreman.log
+    
+    echo Safely removing c:\deploy
+    sdelete.exe -accepteula -p 2 -s c:\deploy
   <% end -%>  
 <% end -%>

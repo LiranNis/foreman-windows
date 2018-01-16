@@ -27,7 +27,7 @@ oses:
 <% end -%>
 
 <% if @host.params['runRundeck'] -%>
-  <% builtArg = @host.params['rundeckBuilt'] ? "-BuiltURL " + foreman_url('built') : "" %>
+  <% builtArg = @host.params['rundeckBuilt'] ? "-built_url " + foreman_url('built') : "" %>
   echo Calling rundeck to run playbook
   wget --no-check-certificate --post-data="" "<%= @host.params['rundeckURL'] %>/api/1/job/<%= @host.params['rundeckJobId'] %>/run?authtoken=<%= @host.params['rundeckAuthToken'] %>&&argString=-hosts <%= @host.name %> <%= builtArg %> <%= @host.params['rundeckExtraArgString'] %>"
 <% end -%>

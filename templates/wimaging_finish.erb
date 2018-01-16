@@ -145,10 +145,10 @@ for /f "delims=" %%a in ('ipconfig /all') do (
     echo rebooting in 10 seconds...
     shutdown /r /t 10
     
-    echo Safely removing c:\deploy
-    sdelete.exe -accepteula -p 2 -s c:\deploy
-    
     echo Safely removing foreman.log
     sdelete.exe -accepteula -p 2 -s c:\foreman.log
+    
+    echo Safely removing c:\deploy
+    sdelete.exe -accepteula -p 2 -s c:\deploy
   <% end -%>  
 <% end -%>

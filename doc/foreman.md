@@ -12,14 +12,12 @@ Now as you have your WIM images ready, it's time to configure your foreman insta
 - Do a lot of testing
 
 ### Hammer automation
-Moving templates folder to the foreman server and running `sh inject_hammer.sh username password` will automaticlly do steps II,III,V using hammer cli  for versions:
+Moving templates folder to the foreman server and running `sh inject_hammer.sh username password` will automaticlly do steps II,III,V,VI using hammer cli  for versions:
 - Windows Server 2008
 - Windows Server 2008 R2
 - Windows Server 2012
 - Windows Server 2012 R2
 - Windows Server 2016
-
-Step VI will be automatic after [this feature](http://projects.theforeman.org/issues/19230) will be added
 
 ## I. Download wimboot
 Start simple:

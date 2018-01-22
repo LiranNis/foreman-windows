@@ -159,6 +159,7 @@ The following parameters are only applied if they exist. Some, like `domainAdmin
 - `computerOuSuffix`: Used if `computerOU` is not present to generate the computer OU from hostgroup and hostdomain. `computerOU` takes precedence! Note, the OU must still be manually created in active directory.
 - `computerDomain`: domain.com # domain to join
 - `disableIPv6`: Allows you to disable IPv6 through the registry
+- `foreman_debug`: Enables alot of debug logs, doesn't remove installations files, this option is recommended **only** for debug
 
 #### Optional - Rundeck
 - `runRundeck`: Call rundeck at the end of the finish script, make sure you wait till the host will end the boot which allows the server to apply GPO settings (such as enable WinRM), the host name will be sent through "hosts" argument
@@ -177,4 +178,4 @@ The templates most likely need a lot of testing to work. This is not covered her
 2. __Continue testing with VMs__ to test netbooting and basic installation
 3. __Debug `peSetup.cmd`__ by pausing it at the send (remove the comment from `::PAUSE`). Then, use `Ctrl-C` to cancel the script altogether. This way you can debug the rendered `peSetup.cmd` quite nicely in WinPE (eg, `notepad peSetup.cmd`)
 4. Use a manually installed host to test rendered snippets like `Wimaging extraFinishCommands` directly.
-4. __Examine `C:\foreman.log.`__ - the output left from the finish script. Also, comment out the clean up stage in the finish script to examine and test the rendered scripts directly.
+5. __Examine `C:\foreman.log.`__ - the output left from the finish script. Also, comment out the clean up stage in the finish script to examine and test the rendered scripts directly, requires `foreman_debug` to be true.

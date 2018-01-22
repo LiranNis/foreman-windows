@@ -19,7 +19,7 @@ Moving templates folder to the foreman server and running `sh inject_hammer.sh u
 - Windows Server 2012 R2
 - Windows Server 2016
 
-Test: Partition templates added automaticlly to the OS
+Test: Partition templates added automaticlly to the OS  
 Steps left: I, IV, VII, VIII
 
 ## I. Download wimboot

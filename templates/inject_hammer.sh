@@ -32,9 +32,6 @@ finish_id=$($base_command template list| grep "Wimaging finish" | grep -o '^[0-9
 provision_id=$($base_command template list| grep "Wimaging provision" | grep -o '^[0-9]*')
 pxelinux_id=$($base_command template list| grep "Wimaging PXELinux" | grep -o '^[0-9]*')
 pesetup_id=$($base_command template list| grep "Wimaging peSetup.cmd" | grep -o '^[0-9]*')
-#extra_id=$($base_command template list| grep "Wimaging extraFinishCommands" | grep -o '^[0-9]*')
-#local_id=$($base_command template list| grep "Wimaging local users" | grep -o '^[0-9]*')
-#outohostgroup_id=$($base_command template list| grep "Wimaging OU from Hostgroup" | grep -o '^[0-9]*')
 joindomain_id=$($base_command template list| grep "Wimaging joinDomain.ps1" | grep -o '^[0-9]*')
 template_ids=( $finish_id $provision_id $pxelinux_id $pesetup_id $extra_id $local_id $outohostgroup_id $joindomain_id)
 echo $template_ids

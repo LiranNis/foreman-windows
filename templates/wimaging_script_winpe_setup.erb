@@ -59,7 +59,8 @@ copy x:\wimaging\deploy\wget64.exe C:\deploy\
 copy x:\wimaging\deploy\wget64.exe C:\Windows\wget.exe
 copy x:\wimaging\deploy\sdelete.exe C:\Windows\
 IF not exist C:\Windows\Setup\Scripts (md C:\Windows\Setup\Scripts)
-echo call C:\deploy\foreman-finish.bat ^> c:\foreman.log 2^>^&1 > C:\Windows\Setup\Scripts\SetupComplete.cmd
+<% logDest = @host.params['foremanDebug'] ? "c:\foreman.log" : "NUL" %>
+echo call C:\deploy\foreman-finish.bat ^> <%= logDest %> 2^>^&1 > C:\Windows\Setup\Scripts\SetupComplete.cmd
 
 <% if foreman_url('user_data') %>
   echo Downloading user data

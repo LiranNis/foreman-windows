@@ -19,6 +19,9 @@ Moving templates folder to the foreman server and running `sh inject_hammer.sh u
 - Windows Server 2012 R2
 - Windows Server 2016
 
+Test: Partition templates added automaticlly to the OS
+Steps left: I, IV, VII, VIII
+
 ## I. Download wimboot
 Start simple:
 - Add [wimboot](http://git.ipxe.org/releases/wimboot/wimboot-latest.zip) bootloader to `/var/lib/tftpboot/boot/` on your PXE server.
@@ -133,7 +136,7 @@ Link all the created templates as well as the installation media and partition t
 
 ![Link templates to OS](img/forman_os_templates.png "Linking Windows 8 OS in Foreman")
 
-## Add Parameters
+## VII. Add Parameters
 To render the the templates correctly, some parameters need to be added. The can be globals, or put them on
 a hostgroup. Most of them make the most sense as parameter on the the OS. Also, almost none are
 required and have defaults. For the most up to date desciption see the template itself.
@@ -169,7 +172,7 @@ The following parameters are only applied if they exist. Some, like `domainAdmin
 - `rundeckBuilt`: Foreman built url will be sent to the rundeck as "built_url" parameters and won't be called within foreman templates, allows you to mark the host as built only after rundeck finished to run, for example, you can run ansible-playbook and at the end to call role that will mark the host as built, see this role for example: [win_foreman_built](https://github.com/LiranNis/win_foreman_built)
 - If you don't want puppet to be installed, ensure you don't pick any Puppet Master when creating host
 
-## VII. Testing and Troubleshooting
+## VIII. Testing and Troubleshooting
 The templates most likely need a lot of testing to work. This is not covered here; though some hints how to start. You should proceed in this order:
 
 1. __Get your templates to render correctly__. Create a random `Bare Metal` host in the desired hostgroup for this purpose and make extensive use of foreman's excellent template __Preview__.

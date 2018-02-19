@@ -61,7 +61,7 @@ for /f "delims=" %%a in ('ipconfig /all') do (
                 netsh int ip set address "!name!" source=static address=<%= @host.ip %> mask=<%= subnet.mask %> gateway=<%= subnet.gateway %>
 				netsh int ip set dnsservers "!name!" source=static address=<%= subnet.dns_primary %>
 <% if subnet.dns_secondary!="" -%>
-				netsh int ip set dnsservers "!name!" source=static address=<%= subnet.dns_secondary %>
+				netsh int ip add dnsservers "!name!" address=<%= subnet.dns_secondary %> index=2
 <% end -%>
             )
         )

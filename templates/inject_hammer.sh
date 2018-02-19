@@ -26,28 +26,3 @@ $base_command template create --operatingsystems "Windows Server 2008","Windows 
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file wimaging_userdata_joinDomain.ps1.erb --name "Wimaging joinDomain.ps1" --type "user_data"
 # 4. Add partition table and associate it
 $base_command partition-table create --os-family Windows --name "Windows default" --file "wimaging_partition_table.erb"  --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016"
-
-# 5. Get template IDs
-finish_id=$($base_command template list| grep "Wimaging finish" | grep -o '^[0-9]*')
-provision_id=$($base_command template list| grep "Wimaging provision" | grep -o '^[0-9]*')
-pxelinux_id=$($base_command template list| grep "Wimaging PXELinux" | grep -o '^[0-9]*')
-pesetup_id=$($base_command template list| grep "Wimaging peSetup.cmd" | grep -o '^[0-9]*')
-joindomain_id=$($base_command template list| grep "Wimaging joinDomain.ps1" | grep -o '^[0-9]*')
-template_ids=( $finish_id $provision_id $pxelinux_id $pesetup_id $extra_id $local_id $outohostgroup_id $joindomain_id)
-echo $template_ids
-
-# 6. Get OS ids
-w2008_id=$($base_command os list | grep "Windows Server 2008" | grep -v "R2" | grep -o '^[0-9]*')
-w2008r2_id=$($base_command os list | grep "Windows Server 2008 R2" | grep -o '^[0-9]*')
-w2012_id=$($base_command os list | grep "Windows Server 2012"  | grep -v "R2" | grep -o '^[0-9]*')
-w2012r2_id=$($base_command os list | grep "Windows Server 2012 R2" | grep -o '^[0-9]*')
-w2016_id=$($base_command os list | grep "Windows Server 2016" | grep -o '^[0-9]*')
-os_ids=($w2008_id $w2008r2_id $w2012_id $w2012r2_id $w2016_id)
-echo $os_ids
-
-# 7. Set default templates for each os
-for os_id in "${os_ids[@]}"; do
-  for template_id in ${template_ids[@]}; do
-    $base_command os set-default-template --config-template-id $template_id --id $os_id
-  done
-done

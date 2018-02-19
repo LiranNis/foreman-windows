@@ -15,3 +15,4 @@ $base_command template dump --name "Wimaging extraFinishCommands"  > wimaging_sn
 $base_command template dump --name "Wimaging local users"  > wimaging_snip_local_users.xml.erb
 $base_command template dump --name "Wimaging OU from Hostgroup"  > wimaging_snip_ou_from_hostgroup.erb
 $base_command template dump --name "Wimaging joinDomain.ps1"  > wimaging_userdata_joinDomain.ps1.erb
+$base_command template dump --name "windows_networking_setup"  > snip_windows_networking_setup.erb

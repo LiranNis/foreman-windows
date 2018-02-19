@@ -9,34 +9,30 @@ kind: snippet
 <%- @host.bond_interfaces.each do |bond| -%>
 <%-   bonding_interfaces.push(bond.identifier) -%>
 <%=   "REM #{bond.identifier} interface" %>
-<%-   ifcfg = snippet('kickstart_ifcfg_bond_interface', :variables => {
-                        :interface => bond,
-                        :subnet => bond.subnet,
-                        :subnet6 => bond.subnet6,
-                        :dhcp => bond.subnet.nil? ? false : bond.subnet.dhcp_boot_mode? }) -%>
-
 <%-   attached_dev = @host.interfaces.select { |i| bond.attached_devices_identifiers.include?(i.identifier.downcase) } -%>
 <%-   curr_bonded_interfaces = [] -%>
 <%-   attached_dev.each do |interface| -%>
 <%-     next if !interface.managed? -%>
 <%=     "REM #{interface.identifier} interface" %>
-<%-     bonded_interfaces.push(interface.identifier) %>
-<%-     curr_bonded_interfaces.push(interface.identifier) %>
+<%-     bonded_interfaces.push(interface.identifier) -%>
+<%-     curr_bonded_interfaces.push(interface.identifier) -%>
 <%-   end -%>
-<%=   "powershell -c New-NetLbfoTeam -Name " + bond.identifier + " -TeamMembers " + bonded_interfaces.join(",") + " -Confirm:$false" %>
+<%=   "powershell -c New-NetLbfoTeam -Name \"" + bond.identifier + "\" -TeamMembers \"" + bonded_interfaces.join("\",\"") + "\" -Confirm:$false" %>
+<%=   "netsh int ip set address \"" + bond.identifier + "\" source=static address=" + bond.ip + " mask=" + bond.subnet.mask + " gateway=" + bond.subnet.gateway %>
+<%=   "netsh int ip set dnsservers \"" + bond.identifier + "\" source=static address=" + bond.subnet.dns_primary %>
+<%-   if bond.subnet.dns_secondary!="" -%>
+<%=     "netsh int ip add dnsservers \"" + bond.identifier + "\" address=" + bond.subnet.dns_secondary + " index=2" %>
+<%-   end -%>
+
 <%- end -%>
 
-<%- @host.managed_interfaces.each do |interface| %>
+<%- @host.managed_interfaces.each do |interface| -%>
 <%-   next if !interface.managed? || (interface.subnet.nil? && interface.subnet6.nil?) -%>
 <%-   next if bonded_interfaces.include?(interface.identifier) -%>
-
-<%=   "# #{interface.identifier} interface" %>
-<%=   snippet('kickstart_ifcfg_get_identifier_names', :variables => { :interface => interface }) -%>
-<%-   ifcfg = snippet('kickstart_ifcfg_generic_interface', :variables => {
-                        :interface => interface,
-                        :subnet => interface.subnet,
-                        :subnet6 => interface.subnet6,
-                        :bonding_interfaces => bonding_interfaces,
-                        :dhcp => interface.subnet.nil? ? false : interface.subnet.dhcp_boot_mode? }) %>
-<%=   save_to_file('/etc/sysconfig/network-scripts/ifcfg-$sanitized_real', ifcfg) %>
+<%=   "REM #{interface.identifier} interface" %>
+<%=   "netsh int ip set address \"" + interface.identifier + "\" source=static address=" + interface.ip + " mask=" + interface.subnet.mask + " gateway=" + interface.subnet.gateway %>
+<%=   "netsh int ip set dnsservers \"" + interface.identifier + "\" source=static address=" + interface.subnet.dns_primary %>
+<%    if interface.subnet.dns_secondary!="" -%>
+<%=     "netsh int ip add dnsservers \"" + interface.identifier + "\" address=" + interface.subnet.dns_secondary + " index=2" %>
+<%    end -%>
 <%- end %>

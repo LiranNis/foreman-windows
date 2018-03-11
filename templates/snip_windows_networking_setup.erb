@@ -18,6 +18,12 @@ kind: snippet
 <%-     curr_bonded_interfaces.push(interface.identifier) -%>
 <%-   end -%>
 <%=   "powershell -c New-NetLbfoTeam -Name \"" + bond.identifier + "\" -TeamMembers \"" + bonded_interfaces.join("\",\"") + "\" -Confirm:$false" %>
+<%-   if "active-backup" == bond.mode -%>
+<%=     "powershell -c Set-NetLbfoTeamMember -Name \"" + bonded_interfaces[0] + "\" -AdministrativeMode Active -Confirm:$false" %>
+<%-     bonded_interfaces.drop(1).each do |bonded| -%>
+<%=       "powershell -c Set-NetLbfoTeamMember -Name \"" + bonded + "\" -AdministrativeMode Standby -Confirm:$false" %>
+<%-     end -%>
+<%-   end -%>
 <%=   "netsh int ip set address \"" + bond.identifier + "\" source=static address=" + bond.ip + " mask=" + bond.subnet.mask + " gateway=" + bond.subnet.gateway %>
 <%=   "netsh int ip set dnsservers \"" + bond.identifier + "\" source=static address=" + bond.subnet.dns_primary %>
 <%-   if bond.subnet.dns_secondary!="" -%>

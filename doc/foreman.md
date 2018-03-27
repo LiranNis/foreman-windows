@@ -57,9 +57,20 @@ The naming of the templates is a suggestion and up to you. Keep in mind, this do
 Since it is very likely you will need to edit these templates to your needs read about [Foreman Template Writing](http://projects.theforeman.org/projects/foreman/wiki/TemplateWriting)
 
 ### Required templates
-#### Wimaging Finish
-- Name: `Wimaging Finish`
-- Type: `Finish template`
+#### Windows default finish
+* Name: `Windows default finish`
+* Type: `Finish template`
+* Description: Generates a batch file that configuring your Windows host after it is up and running
+* Contains:  
+    * Activating local Administrator account if localAdminAccountDisabled is not present / false
+    * Configuring provisioning network on working through it (including static configuration)
+    * Disable IPv6 using disableIPv6 flag
+    * Configuring ntp server if present (ntpServer parameter)
+    * Calling joinDomain.ps1 script (`Windows default user data`) if `domainJoinAccount` and `domainJoinAccount` are present
+    * Deleting all use filed with sdelete unless `foreman_debug` marked as true
+    * Calling `windows_extra_finish_commands` snippet if present (it should be present)
+    * Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
+
 
 #### Wimaging unattend.xml
 - Name: `Wimaging unattend.xml`

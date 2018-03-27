@@ -57,6 +57,7 @@ The naming of the templates is a suggestion and up to you. Keep in mind, this do
 Since it is very likely you will need to edit these templates to your needs read about [Foreman Template Writing](http://projects.theforeman.org/projects/foreman/wiki/TemplateWriting)
 
 ### Required templates
+This part will explain about each template.
 #### Windows default finish
 * Name: `Windows default finish`
 * Type: `Finish template`
@@ -72,9 +73,20 @@ Since it is very likely you will need to edit these templates to your needs read
     * Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
 
 
-#### Wimaging unattend.xml
-- Name: `Wimaging unattend.xml`
+#### Windows default
+- Name: `Windows default`
 - Type: `Provisioning template`
+- Description: The unattend.xml file used to make sysprep
+- Contains:
+ - Configuring the given `systemLocale` (default: en-US), `systemUILanguage` (default: en-US), `systemTimeZone` (default: GMT Standard Time)
+ - Using `wimImageName` to decide the type of the OS
+ - Using `administratorPassword` variable (**NOT root_pass**) to configure the local administrator password, this part is clear text and the unattend file deleted at the `Windows default finish` template using sdelete
+ - Containing `windows_local_users` snippet (explained later)
+ - Setting `windowsLicenseOwner` and `windowsLicenseOrganization` if given
+ - Setting `windowsLicenseKey` if present
+ - Setting computer name.
+ - Disabling firewall (Domain, private and public profiles)
+ - Allowing TS connection
 
 #### Wimaging peSetup.cmd
 - Name: `Wimaging peSetup.cmd`

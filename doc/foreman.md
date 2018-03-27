@@ -139,13 +139,12 @@ can find yourself locked out of the newly provisioned host.
 
 Microsoft did not really care for passwords in unattend.xml files; so it does not really matter if you use
 `<PlainText>true</PlainText>` or not.
-If you want to disguise your password, you could add a host parameter `localUserPassword` and use the following ruby/erb function with `<PlainText>false</PlainText>`:
-
+If you want to disguise your password, you could add a host parameter `localUserPassword` and use the following ruby/erb function with `<PlainText>false</PlainText>`:  
 ```ruby
 <%= Base64.encode64(Encoding::Converter.new("UTF-8", "UTF-16LE",:undef => nil).convert(@host.params['localUserPassword']+"Password")).delete!("\n").chomp -%>
 ```
-
-Note,  the string `Password` is appended your passwords. You can try this out with by generating an unattend.xml containing local users using WAIK.
+**Note:**  This is not recommended, you will need to disable foreman safemode in order to use this function. todo: check if there is alternative functions.  
+**Note:**  the string `Password` is appended your passwords. You can try this out with by generating an unattend.xml containing local users using WAIK.
 
 #### windows_extra_finish_commands
 - Name: `windows_extra_finish_commands`

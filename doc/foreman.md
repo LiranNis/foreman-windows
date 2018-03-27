@@ -56,7 +56,7 @@ The naming of the templates is a suggestion and up to you. Keep in mind, this do
 
 Since it is very likely you will need to edit these templates to your needs read about [Foreman Template Writing](http://projects.theforeman.org/projects/foreman/wiki/TemplateWriting)
 
-### Required templates
+### Templates
 This part will explain about each template, the templates are ordered by the execution time
 #### Windows default PXELinux
 - Name: `Windows default PXELinux`
@@ -69,7 +69,7 @@ This part will explain about each template, the templates are ordered by the exe
 - Name: `Windows default script`
 - Type: `Script template`
 - Description: The first batch script to run, running from WinPE
-- Contains:
+- Process:
   - Downloading the wim file and installing the right os using `wimImageName` parameter
   - Configuring the right boot sector
   - Downloading drivers from drivers folder in the OS url
@@ -91,7 +91,7 @@ This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be st
 - Name: `Windows default`
 - Type: `Provisioning template`
 - Description: The unattend.xml file used to make sysprep
-- Contains:
+- Process:
   - Configuring the given `systemLocale` (default: en-US), `systemUILanguage` (default: en-US), `systemTimeZone` (default: GMT Standard Time)
   - Using `wimImageName` to decide the type of the OS
   - Using `administratorPassword` variable (**NOT root_pass**) to configure the local administrator password, this part is clear text and the unattend file deleted at the `Windows default finish` template using sdelete
@@ -106,7 +106,7 @@ This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be st
 - Name: `Windows default finish`
 - Type: `Finish template`
 - Description: Generates a batch file that configuring your Windows host after it is up and running
-- Contains:  
+- Process:  
   - Activating local Administrator account if localAdminAccountDisabled is not present / false
   - Configuring provisioning network on working through it (including static configuration) todo wip: using `windows_networking_setup` + teaming...
   - Disable IPv6 using disableIPv6 flag
@@ -116,13 +116,21 @@ This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be st
   - Calling `windows_extra_finish_commands` snippet if present (it should be present)
   - Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
 
-### Optional templates
-#### Wimaging joinDomain.ps1
-- Name: `Wimaging joinDomain.ps1`
+#### Windows default user data
+- Name: `Windows default user data`
 - Type: `User data template`
+- Description: This template is joinDomain.ps1 file will add the machine to a domain todo: make this file a snippet and add it to finish template
+- Process:
+  - Use computerDomain parameter is present otherwise use the host domain (given in the interface)
+  - If computerOU is given and isn't automatic / default set it as the computer OU.
+  - If computerOU isn't given or is `default` the Add-Computer command will run without OU which will place the computer in the default location
+  - If computerOU is `automatic` and windows_ou_from_hostgroup snippet exists set the computerOU as the result of windows_ou_from_hostgroup snippet
+  - Create credential using `domainJoinAccount` and `domainJoinAccountPassword`
+  - Add the computer to the domain using Add-Computer command and the parameters that mentioned above
 
-#### Wimaging local users
-- Name: `Wimaging local users`
+### Snippets
+#### windows_local_users
+- Name: `windows_local_users`
 - Type: Snippet
 
 __Note:__ This snippet creates extra users in the unattended stage.
@@ -139,16 +147,16 @@ If you want to disguise your password, you could add a host parameter `localUser
 
 Note,  the string `Password` is appended your passwords. You can try this out with by generating an unattend.xml containing local users using WAIK.
 
-#### Wimaging extraFinishCommands
-- Name: `Wimaging extraFinishCommands`
+#### windows_extra_finish_commands
+- Name: `windows_extra_finish_commands`
 - Type: Snippet
 
 __Note:__ The commands here are executed at the last stage just before finishing host building.
 Make sure they get executed in a synchronous way (eg. do not run in background like msiexec).
 Otherwise the following reboot might kill them.
 
-#### Wimaging OU from Hostgroup
-- Name: `Wimaging OU from Hostgroup`
+#### windows_ou_from_hostgroup
+- Name: `windows_ou_from_hostgroup`
 - Type: Snippet
 
 __Note__: This snippet may be used to generate the computer OU from the host's hostgroup and domain.
@@ -156,6 +164,10 @@ __Note__: This snippet may be used to generate the computer OU from the host's h
 Example: Imagine host `example` in domain `ad.corp.com` and in hostgroup `servers/windows/databases`.
 The snippet generates the OU path:
 `OU=databases,OU=windows,OU=servers,DC=ad,DC=corp,DC=com`. Optionally, set the host parameter `computerOuSuffix` to add some arbitrary OU at the end.
+
+#### windows_networking_setup
+- Name: `windows_networking_setup`
+- Type: Snippet
 
 ## IV. Add installation media
 For each of your Windows versions add a new installation media pointing to the root of the folder.

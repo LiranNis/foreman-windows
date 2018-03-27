@@ -59,18 +59,18 @@ Since it is very likely you will need to edit these templates to your needs read
 ### Required templates
 This part will explain about each template.
 #### Windows default finish
-* Name: `Windows default finish`
-* Type: `Finish template`
-* Description: Generates a batch file that configuring your Windows host after it is up and running
-* Contains:  
-    * Activating local Administrator account if localAdminAccountDisabled is not present / false
-    * Configuring provisioning network on working through it (including static configuration)
-    * Disable IPv6 using disableIPv6 flag
-    * Configuring ntp server if present (ntpServer parameter)
-    * Calling joinDomain.ps1 script (`Windows default user data`) if `domainJoinAccount` and `domainJoinAccount` are present
-    * Deleting all use filed with sdelete unless `foreman_debug` marked as true
-    * Calling `windows_extra_finish_commands` snippet if present (it should be present)
-    * Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
+- Name: `Windows default finish`
+- Type: `Finish template`
+- Description: Generates a batch file that configuring your Windows host after it is up and running
+- Contains:  
+  - Activating local Administrator account if localAdminAccountDisabled is not present / false
+  - Configuring provisioning network on working through it (including static configuration)
+  - Disable IPv6 using disableIPv6 flag
+  - Configuring ntp server if present (ntpServer parameter)
+  - Calling joinDomain.ps1 script (`Windows default user data`) if `domainJoinAccount` and `domainJoinAccount` are present
+  - Deleting all use filed with sdelete unless `foreman_debug` marked as true
+  - Calling `windows_extra_finish_commands` snippet if present (it should be present)
+  - Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
 
 
 #### Windows default
@@ -78,15 +78,15 @@ This part will explain about each template.
 - Type: `Provisioning template`
 - Description: The unattend.xml file used to make sysprep
 - Contains:
- - Configuring the given `systemLocale` (default: en-US), `systemUILanguage` (default: en-US), `systemTimeZone` (default: GMT Standard Time)
- - Using `wimImageName` to decide the type of the OS
- - Using `administratorPassword` variable (**NOT root_pass**) to configure the local administrator password, this part is clear text and the unattend file deleted at the `Windows default finish` template using sdelete
- - Containing `windows_local_users` snippet (explained later)
- - Setting `windowsLicenseOwner` and `windowsLicenseOrganization` if given
- - Setting `windowsLicenseKey` if present
- - Setting computer name.
- - Disabling firewall (Domain, private and public profiles)
- - Allowing TS connection
+  - Configuring the given `systemLocale` (default: en-US), `systemUILanguage` (default: en-US), `systemTimeZone` (default: GMT Standard Time)
+  - Using `wimImageName` to decide the type of the OS
+  - Using `administratorPassword` variable (**NOT root_pass**) to configure the local administrator password, this part is clear text and the unattend file deleted at the `Windows default finish` template using sdelete
+  - Containing `windows_local_users` snippet (explained later)
+  - Setting `windowsLicenseOwner` and `windowsLicenseOrganization` if given
+  - Setting `windowsLicenseKey` if present
+  - Setting computer name.
+  - Disabling firewall (Domain, private and public profiles)
+  - Allowing TS connection
 
 #### Wimaging peSetup.cmd
 - Name: `Wimaging peSetup.cmd`

@@ -57,21 +57,35 @@ The naming of the templates is a suggestion and up to you. Keep in mind, this do
 Since it is very likely you will need to edit these templates to your needs read about [Foreman Template Writing](http://projects.theforeman.org/projects/foreman/wiki/TemplateWriting)
 
 ### Required templates
-This part will explain about each template.
-#### Windows default finish
-- Name: `Windows default finish`
-- Type: `Finish template`
-- Description: Generates a batch file that configuring your Windows host after it is up and running
-- Contains:  
-  - Activating local Administrator account if localAdminAccountDisabled is not present / false
-  - Configuring provisioning network on working through it (including static configuration)
-  - Disable IPv6 using disableIPv6 flag
-  - Configuring ntp server if present (ntpServer parameter)
-  - Calling joinDomain.ps1 script (`Windows default user data`) if `domainJoinAccount` and `domainJoinAccount` are present
-  - Deleting all use filed with sdelete unless `foreman_debug` marked as true
-  - Calling `windows_extra_finish_commands` snippet if present (it should be present)
-  - Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
+This part will explain about each template, the templates are ordered by the execution time
+#### Windows default PXELinux
+- Name: `Windows default PXELinux`
+- Type: `PXELinux template`
+- Description: The PXELinux file, tells the machine to go up from wimboot
 
+**Note**: This file contains hardcoded location of the bcd, bootsdi and bootwim files because there is no way to get this parameters from `windows.rb` in foreman using safemode.
+
+#### Windows default script
+- Name: `Windows default script`
+- Type: `Script template`
+- Description: The first batch script to run, running from WinPE
+- Contains:
+  - Downloading the wim file and installing the right os using `wimImageName` parameter
+  - Configuring the right boot sector
+  - Downloading drivers from drivers folder in the OS url
+  - Downloading extras from extras folder in the OS url
+  - Downloading unattend.xml (Calling the provision template and saving it to unattend.xml)
+  - Downloading the finish template (Calling the finish template and saving it to foreman-finish.bat)
+  - Copy necessary tools from the WinPE image to the OS folder (wget64.exe > wget.exe, sdelete.exe) todo: add nvspbind, move the files to temporary folder, and delete at the end
+  - Moving foreman-finish script to SetupComplete.cmd script, including output redirection to c:\foreman.log (if `foremanDebug` is true)
+  - Downloading joinDomain.ps1 (Calling the user data template and saving it to joinDomain.ps1)
+  - Applying the unattend.xml file
+  - Applying the drivers
+
+__Note:__ To get the download folders nicely, the [`wget64.exe`](https://www.gnu.org/software/wget/manual/wget.html) commands in this template might need tweaking. This could
+especially be necessary if you intend to use the `extraFinishCommands` snippet.
+Eg, `--cut-dirs=3` would cut the first three directories form the download path when saving locally.
+This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be stripped of `pub/win81x64/extras` and download to `puppet.msi`.
 
 #### Windows default
 - Name: `Windows default`
@@ -88,18 +102,19 @@ This part will explain about each template.
   - Disabling firewall (Domain, private and public profiles)
   - Allowing TS connection
 
-#### Wimaging peSetup.cmd
-- Name: `Wimaging peSetup.cmd`
-- Type: `Script template`
-
-__Note:__ To get the download folders nicely, the [`wget64.exe`](https://www.gnu.org/software/wget/manual/wget.html) commands in this template might need tweaking. This could
-especially be necessary if you intend to use the `extraFinishCommands` snippet.
-Eg, `--cut-dirs=3` would cut the first three directories form the download path when saving locally.
-This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be stripped of `pub/win81x64/extras` and download to `puppet.msi`.
-
-#### Wimaging PXELinux
-- Name: `Wimaging PXELinux`
-- Type: `PXELinux template`
+#### Windows default finish
+- Name: `Windows default finish`
+- Type: `Finish template`
+- Description: Generates a batch file that configuring your Windows host after it is up and running
+- Contains:  
+  - Activating local Administrator account if localAdminAccountDisabled is not present / false
+  - Configuring provisioning network on working through it (including static configuration) todo wip: using `windows_networking_setup` + teaming...
+  - Disable IPv6 using disableIPv6 flag
+  - Configuring ntp server if present (ntpServer parameter)
+  - Calling joinDomain.ps1 script (`Windows default user data`) if `domainJoinAccount` and `domainJoinAccount` are present
+  - Deleting all use filed with sdelete unless `foreman_debug` marked as true
+  - Calling `windows_extra_finish_commands` snippet if present (it should be present)
+  - Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
 
 ### Optional templates
 #### Wimaging joinDomain.ps1

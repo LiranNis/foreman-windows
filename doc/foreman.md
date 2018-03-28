@@ -12,14 +12,15 @@ Now as you have your WIM images ready, it's time to configure your foreman insta
 - Do a lot of testing
 
 ### Hammer automation
-Moving templates folder to the foreman server and running `sh inject_hammer.sh username password` will automaticlly do steps II,III,V using hammer cli  for versions:
+Moving templates folder to the foreman server and running `sh inject_hammer.sh username password` will automaticlly do steps II,III,V,VI using hammer cli  for versions:
 - Windows Server 2008
 - Windows Server 2008 R2
 - Windows Server 2012
 - Windows Server 2012 R2
 - Windows Server 2016
 
-Step VI will be automatic after [this feature](http://projects.theforeman.org/issues/19230) will be added
+Test: Partition templates added automaticlly to the OS  
+Steps left: I, IV, VII, VIII
 
 ## I. Download wimboot
 Start simple:
@@ -34,7 +35,7 @@ Add a new OS in _Hosts -> Operating systems_ if needed.
 If you already have windows hosts and puppet, the correct OS and architecture have been auto created already.
 This example covers Windows 8.1 / Windows Server 2012R2.
 
-![Add new OS](img/forman_os.png "Adding Windows 8 OS in Foreman")
+![Add new OS](img/foreman_os.png "Adding Windows 8 OS in Foreman")
 
 - Name: `windows`
 - Major: `6`
@@ -55,35 +56,81 @@ The naming of the templates is a suggestion and up to you. Keep in mind, this do
 
 Since it is very likely you will need to edit these templates to your needs read about [Foreman Template Writing](http://projects.theforeman.org/projects/foreman/wiki/TemplateWriting)
 
-### Required templates
-#### Wimaging Finish
-- Name: `Wimaging Finish`
-- Type: `Finish template`
+### Templates
+This part will explain about each template, the templates are ordered by the execution time
+#### Windows default PXELinux
+- Name: `Windows default PXELinux`
+- Type: `PXELinux template`
+- Description: The PXELinux file, tells the machine to go up from wimboot
 
-#### Wimaging unattend.xml
-- Name: `Wimaging unattend.xml`
-- Type: `Provisioning template`
+**Note**: This file contains hardcoded location of the bcd, bootsdi and bootwim files because there is no way to get this parameters from `windows.rb` in foreman using safemode.
 
-#### Wimaging peSetup.cmd
-- Name: `Wimaging peSetup.cmd`
+#### Windows default script
+- Name: `Windows default script`
 - Type: `Script template`
+- Description: The first batch script to run, running from WinPE
+- Process:
+  - Downloading the wim file and installing the right os using `wimImageName` parameter
+  - Configuring the right boot sector
+  - Downloading drivers from drivers folder in the OS url
+  - Downloading extras from extras folder in the OS url
+  - Downloading unattend.xml (Calling the provision template and saving it to unattend.xml)
+  - Downloading the finish template (Calling the finish template and saving it to foreman-finish.bat)
+  - Copy necessary tools from the WinPE image to the OS folder (wget64.exe > wget.exe, sdelete.exe) todo: add nvspbind, move the files to temporary folder, and delete at the end
+  - Moving foreman-finish script to SetupComplete.cmd script, including output redirection to c:\foreman.log (if `foremanDebug` is true)
+  - Downloading joinDomain.ps1 (Calling the user data template and saving it to joinDomain.ps1)
+  - Applying the unattend.xml file
+  - Applying the drivers
 
 __Note:__ To get the download folders nicely, the [`wget64.exe`](https://www.gnu.org/software/wget/manual/wget.html) commands in this template might need tweaking. This could
 especially be necessary if you intend to use the `extraFinishCommands` snippet.
 Eg, `--cut-dirs=3` would cut the first three directories form the download path when saving locally.
 This way `http://winmirror.domain.com/pub/win81x64/extras/puppet.msi` will be stripped of `pub/win81x64/extras` and download to `puppet.msi`.
 
-#### Wimaging PXELinux
-- Name: `Wimaging PXELinux`
-- Type: `PXELinux template`
+#### Windows default
+- Name: `Windows default`
+- Type: `Provisioning template`
+- Description: The unattend.xml file used to make sysprep
+- Process:
+  - Configuring the given `systemLocale` (default: en-US), `systemUILanguage` (default: en-US), `systemTimeZone` (default: GMT Standard Time)
+  - Using `wimImageName` to decide the type of the OS
+  - Using `administratorPassword` variable (**NOT root_pass**) to configure the local administrator password, this part is clear text and the unattend file deleted at the `Windows default finish` template using sdelete
+  - Containing `windows_local_users` snippet (explained later)
+  - Setting `windowsLicenseOwner` and `windowsLicenseOrganization` if given
+  - Setting `windowsLicenseKey` if present
+  - Setting computer name.
+  - Disabling firewall (Domain, private and public profiles)
+  - Allowing TS connection
 
-### Optional templates
-#### Wimaging joinDomain.ps1
-- Name: `Wimaging joinDomain.ps1`
+#### Windows default finish
+- Name: `Windows default finish`
+- Type: `Finish template`
+- Description: Generates a batch file that configuring your Windows host after it is up and running
+- Process:  
+  - Activating local Administrator account if localAdminAccountDisabled is not present / false
+  - Configuring provisioning network on working through it (including static configuration) todo wip: using `windows_networking_setup` + teaming...
+  - Disable IPv6 using disableIPv6 flag
+  - Configuring ntp server if present (ntpServer parameter)
+  - Calling joinDomain.ps1 script (`Windows default user data`) if `domainJoinAccount` and `domainJoinAccount` are present
+  - Deleting all use filed with sdelete unless `foreman_debug` marked as true
+  - Calling `windows_extra_finish_commands` snippet if present (it should be present)
+  - Calling foreman built url in order to mark the host as Installed unless `rundeckBuilt` is true (`windows_extra_finish_commands` handles this case)
+
+#### Windows default user data
+- Name: `Windows default user data`
 - Type: `User data template`
+- Description: This template is joinDomain.ps1 file will add the machine to a domain todo: make this file a snippet and add it to finish template
+- Process:
+  - Use computerDomain parameter is present otherwise use the host domain (given in the interface)
+  - If computerOU is given and isn't automatic / default set it as the computer OU.
+  - If computerOU isn't given or is `default` the Add-Computer command will run without OU which will place the computer in the default location
+  - If computerOU is `automatic` and windows_ou_from_hostgroup snippet exists set the computerOU as the result of windows_ou_from_hostgroup snippet
+  - Create credential using `domainJoinAccount` and `domainJoinAccountPassword`
+  - Add the computer to the domain using Add-Computer command and the parameters that mentioned above
 
-#### Wimaging local users
-- Name: `Wimaging local users`
+### Snippets
+#### windows_local_users
+- Name: `windows_local_users`
 - Type: Snippet
 
 __Note:__ This snippet creates extra users in the unattended stage.
@@ -92,24 +139,23 @@ can find yourself locked out of the newly provisioned host.
 
 Microsoft did not really care for passwords in unattend.xml files; so it does not really matter if you use
 `<PlainText>true</PlainText>` or not.
-If you want to disguise your password, you could add a host parameter `localUserPassword` and use the following ruby/erb function with `<PlainText>false</PlainText>`:
-
+If you want to disguise your password, you could add a host parameter `localUserPassword` and use the following ruby/erb function with `<PlainText>false</PlainText>`:  
 ```ruby
 <%= Base64.encode64(Encoding::Converter.new("UTF-8", "UTF-16LE",:undef => nil).convert(@host.params['localUserPassword']+"Password")).delete!("\n").chomp -%>
 ```
+**Note:**  This is not recommended, you will need to disable foreman safemode in order to use this function. todo: check if there is alternative functions.  
+**Note:**  the string `Password` is appended your passwords. You can try this out with by generating an unattend.xml containing local users using WAIK.
 
-Note,  the string `Password` is appended your passwords. You can try this out with by generating an unattend.xml containing local users using WAIK.
-
-#### Wimaging extraFinishCommands
-- Name: `Wimaging extraFinishCommands`
+#### windows_extra_finish_commands
+- Name: `windows_extra_finish_commands`
 - Type: Snippet
 
 __Note:__ The commands here are executed at the last stage just before finishing host building.
 Make sure they get executed in a synchronous way (eg. do not run in background like msiexec).
 Otherwise the following reboot might kill them.
 
-#### Wimaging OU from Hostgroup
-- Name: `Wimaging OU from Hostgroup`
+#### windows_ou_from_hostgroup
+- Name: `windows_ou_from_hostgroup`
 - Type: Snippet
 
 __Note__: This snippet may be used to generate the computer OU from the host's hostgroup and domain.
@@ -117,6 +163,10 @@ __Note__: This snippet may be used to generate the computer OU from the host's h
 Example: Imagine host `example` in domain `ad.corp.com` and in hostgroup `servers/windows/databases`.
 The snippet generates the OU path:
 `OU=databases,OU=windows,OU=servers,DC=ad,DC=corp,DC=com`. Optionally, set the host parameter `computerOuSuffix` to add some arbitrary OU at the end.
+
+#### windows_networking_setup
+- Name: `windows_networking_setup`
+- Type: Snippet
 
 ## IV. Add installation media
 For each of your Windows versions add a new installation media pointing to the root of the folder.
@@ -133,9 +183,9 @@ Link all the created templates as well as the installation media and partition t
 - In partition tables, select `Wimaging default`
 - In installation media, check the appropriate installation media added above.
 
-![Link templates to OS](img/forman_os_templates.png "Linking Windows 8 OS in Foreman")
+![Link templates to OS](img/foreman_os_templates.png "Linking Windows 8 OS in Foreman")
 
-## Add Parameters
+## VII. Add Parameters
 To render the the templates correctly, some parameters need to be added. The can be globals, or put them on
 a hostgroup. Most of them make the most sense as parameter on the the OS. Also, almost none are
 required and have defaults. For the most up to date desciption see the template itself.
@@ -171,7 +221,7 @@ The following parameters are only applied if they exist. Some, like `domainAdmin
 - `rundeckBuilt`: Foreman built url will be sent to the rundeck as "built_url" parameters and won't be called within foreman templates, allows you to mark the host as built only after rundeck finished to run, for example, you can run ansible-playbook and at the end to call role that will mark the host as built, see this role for example: [win_foreman_built](https://github.com/LiranNis/win_foreman_built)
 - If you don't want puppet to be installed, ensure you don't pick any Puppet Master when creating host
 
-## VII. Testing and Troubleshooting
+## VIII. Testing and Troubleshooting
 The templates most likely need a lot of testing to work. This is not covered here; though some hints how to start. You should proceed in this order:
 
 1. __Get your templates to render correctly__. Create a random `Bare Metal` host in the desired hostgroup for this purpose and make extensive use of foreman's excellent template __Preview__.

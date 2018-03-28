@@ -35,7 +35,7 @@ Add a new OS in _Hosts -> Operating systems_ if needed.
 If you already have windows hosts and puppet, the correct OS and architecture have been auto created already.
 This example covers Windows 8.1 / Windows Server 2012R2.
 
-![Add new OS](img/forman_os.png "Adding Windows 8 OS in Foreman")
+![Add new OS](img/foreman_os.png "Adding Windows 8 OS in Foreman")
 
 - Name: `windows`
 - Major: `6`
@@ -183,7 +183,7 @@ Link all the created templates as well as the installation media and partition t
 - In partition tables, select `Wimaging default`
 - In installation media, check the appropriate installation media added above.
 
-![Link templates to OS](img/forman_os_templates.png "Linking Windows 8 OS in Foreman")
+![Link templates to OS](img/foreman_os_templates.png "Linking Windows 8 OS in Foreman")
 
 ## VII. Add Parameters
 To render the the templates correctly, some parameters need to be added. The can be globals, or put them on

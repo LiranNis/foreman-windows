@@ -1,6 +1,6 @@
 <%#
 kind: script
-name: Wimaging peSetup.cmd
+name: Windows default script
 oses:
 - Windows Server 2008
 - Windows Server 2008 R2
@@ -37,7 +37,7 @@ echo Downloading the drivers
 md c:\drivers
 %WGET% -P c:\drivers -r -np -nH --cut-dirs=<%= cut_dirs %> -R index.html -q --level=0 <%= @host.os.medium_uri(@host).to_s %>/drivers/
 
-<% if snippets "Wimaging extraFinishCommands" -%>
+<% if snippets "windows_extra_finish_commands" -%>
   echo Downloading extras
   md C:\Extras
   %WGET% -P c:\Extras -r -np -nH --cut-dirs=<%= cut_dirs %> -R index.html -q --level=0 <%= @host.os.medium_uri(@host).to_s %>/extras/
@@ -58,8 +58,9 @@ echo copy tools
 copy x:\wimaging\deploy\wget64.exe C:\deploy\
 copy x:\wimaging\deploy\wget64.exe C:\Windows\wget.exe
 copy x:\wimaging\deploy\sdelete.exe C:\Windows\
+copy x:\wimaging\deploy\nvspbind.exe C:\deploy\
 IF not exist C:\Windows\Setup\Scripts (md C:\Windows\Setup\Scripts)
-<% logDest = @host.params['foremanDebug'] ? "c:\foreman.log" : "NUL" %>
+<% logDest = @host.params['foremanDebug'] ? "c:\\foreman.log" : "NUL" %>
 echo call C:\deploy\foreman-finish.bat ^> <%= logDest %> 2^>^&1 > C:\Windows\Setup\Scripts\SetupComplete.cmd
 
 <% if foreman_url('user_data') %>
@@ -75,10 +76,6 @@ dism.exe /Image:C:\ /Apply-Unattend:c:\Windows\Panther\unattend.xml /ScratchDir:
 
 echo Apply Drivers
 dism.exe /Image:C:\ /Add-Driver /Driver:c:\drivers\ /Recurse /ForceUnsigned
-
-<% if @host.params['pesetup_additional_triggers'] -%>
-  <%= snippets "Wimaging peSetup.cmd additional triggers" %>
-<% end -%>
 
 :: Uncomment PAUSE for debug:
 ::PAUSE

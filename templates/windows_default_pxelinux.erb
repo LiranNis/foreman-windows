@@ -1,0 +1,23 @@
+<%#
+kind: PXELinux
+name: Windows default PXELinux
+oses:
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows
+-%>
+<%-
+# Until foreman/app/models/operatingsystems/windows.rb will allow to access this values in safemode, we will use this workaround
+pxe_prefix = "boot/windows-#{@host.architecture}/".tr(" ","-")
+kernel = pxe_prefix + "wimboot" # Not used, the one in /boot/ is the one that being used
+initrd = pxe_prefix + "bootmgr" # Not used
+bcd = pxe_prefix + "bcd"
+bootsdi = pxe_prefix + "boot.sdi"
+bootwim = pxe_prefix + "boot.wim"
+-%>
+DEFAULT menu    
+LABEL menu         
+     COM32 linux.c32 boot/wimboot
+     APPEND initrdfile=<%= bcd %>,<%= bootsdi %>,<%= bootwim %>

@@ -1,6 +1,6 @@
 <%#
 kind: snippet
-name: Wimaging local users
+name: windows_local_users
 oses:
 - Windows Server 2008
 - Windows Server 2008 R2
@@ -10,7 +10,8 @@ oses:
 # create extra local user accounts for debugging; otherwise you might be locked out.
 # Warning: Commented out by default
 %>
-<!--
+<%
+=begin
      <LocalAccounts>
          <LocalAccount wcm:action="add">
              <Password>
@@ -21,4 +22,5 @@ oses:
              <Group>Administrators</Group>
          </LocalAccount>
      </LocalAccounts>
--->
+=end
+%>

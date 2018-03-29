@@ -1,6 +1,6 @@
 <%#
 kind: finish
-name: Wimaging finish
+name: Windows default finish
 oses:
 - Windows Server 2008
 - Windows Server 2008 R2
@@ -19,14 +19,13 @@ params:
 - computerDomain: domain.com # domain to join
 - disableIPv6: false
 - foremanDebug: false
-%>
-<%
+-%>
+<%-
   # safemode renderer does not support unary negation
   salt_enabled = @host.params['salt_master'] ? true : false
   chef_enabled = @host.respond_to?(:chef_proxy) && @host.chef_proxy
   foreman_debug = @host.params['foremanDebug'] == 'true' ? true : false
 -%>
-
 @echo off
 
 <% unless @host.params['localAdminAccountDisabled'] -%>
@@ -34,43 +33,17 @@ params:
   net user administrator /active:yes
 <% end -%>
 
-<% subnet = @host.subnet -%>
-<% if subnet.respond_to?(:dhcp_boot_mode?) -%>
-<% dhcp = subnet.dhcp_boot_mode? && !@static -%>
-<% else -%>
-<% dhcp = !@static -%>
+<% if snippets "windows_networking_setup" -%>
+  echo Running extra commands
+  <%= snippets "windows_networking_setup" %>
 <% end -%>
 
-<% if !dhcp -%>
-SETLOCAL EnableDelayedExpansion
-set MainMAC=<%= @host.mac %>
-set MainMAC=%MainMAC::=-%
-for /f "delims=" %%a in ('ipconfig /all') do (
-    set line=%%a
-    if not "!line:~0,1!"==" " if not "!line:adapter=!"=="!line!" (
-        set name=!line:*adapter =!
-        set name=!name::=!
-    )
-    for /f "tokens=1,2,*" %%b in ("%%a") do (
-        if "%%b %%c"=="Physical Address." (
-            set mac=%%d
-            set mac=!mac:*: =!
-            echo !name!: !mac!
-            call set mactest=%%MainMAC:!mac!=%%
-            if not "!MainMAC!"=="!mactest!" (
-                netsh int ip set address "!name!" source=static address=<%= @host.ip %> mask=<%= subnet.mask %> gateway=<%= subnet.gateway %>
-				netsh int ip set dnsservers "!name!" source=static address=<%= subnet.dns_primary %>
-<% if subnet.dns_secondary!="" -%>
-				netsh int ip add dnsservers "!name!" address=<%= subnet.dns_secondary %> index=2
-<% end -%>
-            )
-        )
-    )
-)
+<% if @host.params['preferIPv4'] -%>
+  reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponents /d 0xFF /f
 <% end -%>
 
 <% if @host.params['disableIPv6'] -%>
-  reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponent /d 0xFFFFFFFF /f
+  reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponents /d 0xFFFFFFFF /f
 <% end -%>
 
 <% if @host.pxe_build? %>
@@ -128,9 +101,9 @@ for /f "delims=" %%a in ('ipconfig /all') do (
     sdelete.exe -accepteula -p 2 -s c:\wimaging
   <% end %>
 
-  <% if snippets "Wimaging extraFinishCommands" -%>
+  <% if snippets "windows_extra_finish_commands" -%>
     echo Running extra commands
-    <%= snippets "Wimaging extraFinishCommands" %>
+    <%= snippets "windows_extra_finish_commands" %>
   <% end -%>
   
   <% unless @host.params['rundeckBuilt'] -%>

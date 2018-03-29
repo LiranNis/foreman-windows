@@ -4,12 +4,25 @@ snippet: true
 model: ProvisioningTemplate
 kind: snippet
 -%>
+
+<% subnet = @host.subnet -%>
+<% if subnet.respond_to?(:dhcp_boot_mode?) -%>
+<% dhcp = subnet.dhcp_boot_mode? && !@static -%>
+<% else -%>
+<% dhcp = !@static -%>
+<% end -%>
+
 <%- bonded_interfaces = [] -%>
 <%- bonding_interfaces = [] -%>
 <%- @host.bond_interfaces.each do |bond| -%>
 <%-   bonding_interfaces.push(bond.identifier) -%>
 <%=   "REM #{bond.identifier} interface" %>
-<%-   attached_dev = @host.interfaces.select { |i| bond.attached_devices_identifiers.include?(i.identifier.downcase) } -%>
+<%-   attached_dev = [] -%>
+<%-   @host.interfaces.each do |interface| -%>
+<%-     if bond.attached_devices_identifiers.include?(interface.identifier.downcase) -%>
+<%-       attached_dev.push(interface) %>
+<%-     end -%>
+<%-   end -%>
 <%-   curr_bonded_interfaces = [] -%>
 <%-   attached_dev.each do |interface| -%>
 <%-     next if !interface.managed? -%>
@@ -20,25 +33,30 @@ kind: snippet
 <%=   "powershell -c New-NetLbfoTeam -Name \"" + bond.identifier + "\" -TeamMembers \"" + bonded_interfaces.join("\",\"") + "\" -Confirm:$false" %>
 <%-   if "active-backup" == bond.mode -%>
 <%=     "powershell -c Set-NetLbfoTeamMember -Name \"" + bonded_interfaces[0] + "\" -AdministrativeMode Active -Confirm:$false" %>
-<%-     bonded_interfaces.drop(1).each do |bonded| -%>
+<%-     bonded_interfaces[1..-1].each do |bonded| -%>
 <%=       "powershell -c Set-NetLbfoTeamMember -Name \"" + bonded + "\" -AdministrativeMode Standby -Confirm:$false" %>
 <%-     end -%>
 <%-   end -%>
-<%=   "netsh int ip set address \"" + bond.identifier + "\" source=static address=" + bond.ip + " mask=" + bond.subnet.mask + " gateway=" + bond.subnet.gateway %>
-<%=   "netsh int ip set dnsservers \"" + bond.identifier + "\" source=static address=" + bond.subnet.dns_primary %>
-<%-   if bond.subnet.dns_secondary!="" -%>
-<%=     "netsh int ip add dnsservers \"" + bond.identifier + "\" address=" + bond.subnet.dns_secondary + " index=2" %>
+<%-   if !dhcp -%>
+<%=     "netsh int ip set address \"" + bond.identifier + "\" source=static address=" + bond.ip + " mask=" + bond.subnet.mask + " gateway=" + bond.subnet.gateway %>
+<%=     "netsh int ip set dnsservers \"" + bond.identifier + "\" source=static address=" + bond.subnet.dns_primary %>
+<%-     if bond.subnet.dns_secondary!="" -%>
+<%=       "netsh int ip add dnsservers \"" + bond.identifier + "\" address=" + bond.subnet.dns_secondary + " index=2" %>
+<%-     end -%>
 <%-   end -%>
-
 <%- end -%>
 
-<%- @host.managed_interfaces.each do |interface| -%>
-<%-   next if !interface.managed? || (interface.subnet.nil? && interface.subnet6.nil?) -%>
-<%-   next if bonded_interfaces.include?(interface.identifier) -%>
-<%=   "REM #{interface.identifier} interface" %>
-<%=   "netsh int ip set address \"" + interface.identifier + "\" source=static address=" + interface.ip + " mask=" + interface.subnet.mask + " gateway=" + interface.subnet.gateway %>
-<%=   "netsh int ip set dnsservers \"" + interface.identifier + "\" source=static address=" + interface.subnet.dns_primary %>
-<%    if interface.subnet.dns_secondary!="" -%>
-<%=     "netsh int ip add dnsservers \"" + interface.identifier + "\" address=" + interface.subnet.dns_secondary + " index=2" %>
-<%    end -%>
-<%- end %>
+<%- if !dhcp -%>
+<%-   @host.managed_interfaces.each do |interface| -%>
+<%-     next if !interface.managed? || (interface.subnet.nil? && interface.subnet6.nil?) -%>
+<%-     next if bonded_interfaces.include?(interface.identifier) -%>
+<%=     "REM #{interface.identifier} interface" %>
+<%=     "netsh int ip set address \"" + interface.identifier + "\" source=static address=" + interface.ip + " mask=" + interface.subnet.mask + " gateway=" + interface.subnet.gateway %>
+<%=     "netsh int ip set dnsservers \"" + interface.identifier + "\" source=static address=" + interface.subnet.dns_primary %>
+<%      if interface.subnet.dns_secondary!="" -%>
+<%=       "netsh int ip add dnsservers \"" + interface.identifier + "\" address=" + interface.subnet.dns_secondary + " index=2" %>
+<%      end -%>
+<%-   end -%>
+<%- end -%>
+
+<%= "C:\\deploy\\nvspbind.exe /++ \"" + @host.primary_interface.identifier + "\" *" %>

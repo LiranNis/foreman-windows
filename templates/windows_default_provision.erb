@@ -1,6 +1,6 @@
 <%#
 kind: provision
-name: Wimaging provision
+name: Windows default
 oses:
 - Windows Server 2008
 - Windows Server 2008 R2
@@ -9,19 +9,20 @@ oses:
 - Windows
 # Parameters are expected to be set in Foreman (globally or per group/host)
 params:
-- windowsLicenseKey: ABCDE-ABCDE-ABCDE-ABCDE-ABCDE # Valid Windows license key
-- windowsLicenseOwner: Company, INC # Legal owner of the Windows license key
+- administratorPassword: Password # The password of the local administrator account
 - systemLocale: en-US
 - systemUILanguage: en-US
 - systemTimeZone: GMT Standard Time #see https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
-- wimImageName = Windows 8.1 Pro # Image name seems only necessary if the WIM contains more than one image
-%>
-<%
+- wimImageName: Windows 8.1 Pro # Image name seems only necessary if the WIM contains more than one image
+- windowsLicenseKey: ABCDE-ABCDE-ABCDE-ABCDE-ABCDE # Valid Windows license key
+- windowsLicenseOwner: Company, INC # Legal owner of the Windows license key
+-%>
+<%-
   system_locale = @host.params['systemLocale'] ? @host.params['systemLocale'] : 'en-US' 
   system_ui_lang = @host.params['systemUILanguage'] ? @host.params['systemUILanguage'] : 'en-US'
   setup_ui_lang = 'en-US'
   system_timezone = @host.params['systemTimeZone'] ? @host.params['systemTimeZone'] : 'GMT Standard Time'
-%>
+-%>
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend">
     <servicing></servicing>
@@ -72,17 +73,19 @@ params:
         <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <UserAccounts>
                 <AdministratorPassword>
-                    <PlainText>false</PlainText>
-                    <Value><%= Base64.encode64(Encoding::Converter.new("UTF-8", "UTF-16LE",:undef => nil).convert(Base64.decode64(root_pass)+"AdministratorPassword")).delete!("\n").chomp %></Value>
+                    <PlainText>true</PlainText>
+                    <Value><%= @host.params['administratorPassword'] %></Value>
                 </AdministratorPassword>
-                <% if snippet('Wimaging local users') -%>
-                  <%= snippet('Wimaging local users') -%>
+                <% if snippet('windows_local_users') -%>
+                  <%= snippet('windows_local_users') -%>
                 <% end %>
             </UserAccounts>
             <TimeZone><%= system_timezone -%></TimeZone>
             <% if @host.params['windowsLicenseOwner'] -%>
-              <RegisteredOrganization><%= @host.params['windowsLicenseOwner'] -%></RegisteredOrganization>
               <RegisteredOwner><%= @host.params['windowsLicenseOwner'] -%></RegisteredOwner>
+            <% end -%>
+            <% if @host.params['windowsLicenseOrganization'] -%>
+              <RegisteredOrganization><%= @host.params['windowsLicenseOrganization'] -%></RegisteredOrganization>
             <% end -%>
             <OOBE>
                 <HideEULAPage>true</HideEULAPage>
@@ -115,10 +118,12 @@ params:
         <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ComputerName><%= @host.shortname -%></ComputerName>
             <% if @host.params['windowsLicenseOwner'] -%>
-              <RegisteredOrganization><%= @host.params['windowsLicenseOwner'] -%></RegisteredOrganization>
               <RegisteredOwner><%= @host.params['windowsLicenseOwner'] -%></RegisteredOwner>
             <% end -%>
-              <TimeZone><%= system_timezone -%></TimeZone>
+            <% if @host.params['windowsLicenseOrganization'] -%>
+              <RegisteredOrganization><%= @host.params['windowsLicenseOrganization'] -%></RegisteredOrganization>
+            <% end -%>
+            <TimeZone><%= system_timezone -%></TimeZone>
         </component>
         <component name="Networking-MPSSVC-Svc" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <DomainProfile_EnableFirewall>false</DomainProfile_EnableFirewall>

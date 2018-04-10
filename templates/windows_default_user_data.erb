@@ -1,6 +1,6 @@
 <%#
 kind: user_data
-name: Wimaging joinDomain.ps1
+name: Windows default user data
 oses:
 - Windows Server 2008
 - Windows Server 2008 R2
@@ -9,7 +9,7 @@ oses:
 - Windows
 # Parameters are expected to be set in Foreman (globally or per group/host)
 params:
-- domainJoinAccount: administrator@domain.com # use tthis account to join domain. If set, domain join will run
+- domainJoinAccount: administrator@domain.com # use this account to join domain. If set, domain join will run
 - domainJoinAccountPassword: Password for the domain Admin account
 - computerOU: OU=Computers,CN=domain,CN=com # Place the computer account in specified Organizational Unit
 - computerDomain: domain.com # domain to join, optional
@@ -22,10 +22,10 @@ else
 end
 if @host.params['computerOU'] and ( @host.params['computerOU'] != 'automatic' and @host.params['computerOU'] != 'default' )
   computer_ou = @host.params['computerOU']
-elsif snippet('Wimaging OU from Hostgroup') and @host.params['computerOU'] == 'automatic'
-  computer_ou = snippet('Wimaging OU from Hostgroup')
+elsif snippet('windows_ou_from_hostgroup') and @host.params['computerOU'] == 'automatic'
+  computer_ou = snippet('windows_ou_from_hostgroup')
 else
-  computer_ou = false 
+  computer_ou = false
 end
 %>
 $user = '<%= @host.params['domainJoinAccount'] -%>'

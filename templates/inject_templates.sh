@@ -47,8 +47,8 @@ w2008r2_id=$($base_command os list | grep "Windows Server 2008 R2" | grep -o '^[
 w2012_id=$($base_command os list | grep "Windows Server 2012"  | grep -v "R2" | grep -o '^[0-9]*')
 w2012r2_id=$($base_command os list | grep "Windows Server 2012 R2" | grep -o '^[0-9]*')
 w2016_id=$($base_command os list | grep "Windows Server 2016" | grep -o '^[0-9]*')
-#os_ids=($w2008_id $w2008r2_id $w2012_id $w2012r2_id $w2016_id)
-os_ids=($w2008_id $w2008r2_id $w2012_id $w2016_id)
+os_ids=($w2008_id $w2008r2_id $w2012_id $w2012r2_id $w2016_id)
+#os_ids=($w2008_id $w2008r2_id $w2012_id $w2016_id)
 echo $os_ids
 
 # 7. Set default templates for each os
@@ -92,9 +92,9 @@ $base_command os set-parameter --operatingsystem "Windows Server 2012" --name ru
 $base_command os set-parameter --operatingsystem "Windows Server 2012" --name wimImageName --value "$wimImageName2012"
 $base_command os set-parameter --operatingsystem "Windows Server 2012" --name windowsLicenseKey --value "$windowsLicenseKey2012" --hidden-value true
 
-#$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name rundeckJobId --value "$rundeckJobId2012R2"
-#$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name wimImageName --value "$wimImageName2012R2"
-#$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name windowsLicenseKey --value "$windowsLicenseKey2012R2" --hidden-value true
+$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name rundeckJobId --value "$rundeckJobId2012R2"
+$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name wimImageName --value "$wimImageName2012R2"
+$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name windowsLicenseKey --value "$windowsLicenseKey2012R2" --hidden-value true
 
 $base_command os set-parameter --operatingsystem "Windows Server 2016" --name rundeckJobId --value "$rundeckJobId2016"
 $base_command os set-parameter --operatingsystem "Windows Server 2016" --name wimImageName --value "$wimImageName2016"

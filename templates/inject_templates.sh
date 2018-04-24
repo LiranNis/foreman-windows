@@ -1,3 +1,4 @@
+#!/bin/sh
 user="$1"
 pass="$2"
 
@@ -46,7 +47,8 @@ w2008r2_id=$($base_command os list | grep "Windows Server 2008 R2" | grep -o '^[
 w2012_id=$($base_command os list | grep "Windows Server 2012"  | grep -v "R2" | grep -o '^[0-9]*')
 w2012r2_id=$($base_command os list | grep "Windows Server 2012 R2" | grep -o '^[0-9]*')
 w2016_id=$($base_command os list | grep "Windows Server 2016" | grep -o '^[0-9]*')
-os_ids=($w2008_id $w2008r2_id $w2012_id $w2012r2_id $w2016_id)
+#os_ids=($w2008_id $w2008r2_id $w2012_id $w2012r2_id $w2016_id)
+os_ids=($w2008_id $w2008r2_id $w2012_id $w2016_id)
 echo $os_ids
 
 # 7. Set default templates for each os
@@ -55,3 +57,45 @@ for os_id in "${os_ids[@]}"; do
     $base_command os set-default-template --config-template-id $template_id --id $os_id
   done
 done
+
+# 8. Inject the default parameters for each os
+chmod +x vars/global_vars.conf
+. vars/global_vars.conf
+
+for os_id in "${os_ids[@]}"; do
+  $base_command os set-parameter --operatingsystem-id $os_id --name administratorPassword --value "$administratorPassword" --hidden-value true
+  $base_command os set-parameter --operatingsystem-id $os_id --name computerDomain --value "$computerDomain"
+  $base_command os set-parameter --operatingsystem-id $os_id --name computerOU --value "$computerOU"
+  $base_command os set-parameter --operatingsystem-id $os_id --name domainJoinAccount --value "$domainJoinAccount"
+  $base_command os set-parameter --operatingsystem-id $os_id --name domainJoinAccountPassword --value "$domainJoinAccountPassword" --hidden-value true
+  $base_command os set-parameter --operatingsystem-id $os_id --name runRundeck --value "$runRundeck"
+  $base_command os set-parameter --operatingsystem-id $os_id --name rundeckURL --value "$rundeckURL"
+  $base_command os set-parameter --operatingsystem-id $os_id --name rundeckAuthToken --value "$rundeckAuthToken" --hidden-value true
+  $base_command os set-parameter --operatingsystem-id $os_id --name rundeckJobId --value ""
+  $base_command os set-parameter --operatingsystem-id $os_id --name rundeckBuilt --value "$rundeckBuilt"
+  $base_command os set-parameter --operatingsystem-id $os_id --name systemLocale --value "$systemLocale"
+  $base_command os set-parameter --operatingsystem-id $os_id --name systemUILanguage --value "$systemUILanguage"
+  $base_command os set-parameter --operatingsystem-id $os_id --name systemTimeZone --value "$systemTimeZone"
+  $base_command os set-parameter --operatingsystem-id $os_id --name windowsLicenseOwner --value "$windowsLicenseOwner"
+  $base_command os set-parameter --operatingsystem-id $os_id --name windowsLicenseOrganization --value "$windowsLicenseOrganization"
+done
+
+$base_command os set-parameter --operatingsystem "Windows Server 2008" --name rundeckJobId --value "$rundeckJobId2008"
+$base_command os set-parameter --operatingsystem "Windows Server 2008" --name wimImageName --value "$wimImageName2008"
+$base_command os set-parameter --operatingsystem "Windows Server 2008" --name windowsLicenseKey --value "$windowsLicenseKey2008" --hidden-value true
+
+$base_command os set-parameter --operatingsystem "Windows Server 2008 R2" --name rundeckJobId --value "$rundeckJobId2008R2"
+$base_command os set-parameter --operatingsystem "Windows Server 2008 R2" --name wimImageName --value "$wimImageName2008R2"
+$base_command os set-parameter --operatingsystem "Windows Server 2008 R2" --name windowsLicenseKey --value "$windowsLicenseKey2008R2" --hidden-value true
+
+$base_command os set-parameter --operatingsystem "Windows Server 2012" --name rundeckJobId --value "$rundeckJobId2012"
+$base_command os set-parameter --operatingsystem "Windows Server 2012" --name wimImageName --value "$wimImageName2012"
+$base_command os set-parameter --operatingsystem "Windows Server 2012" --name windowsLicenseKey --value "$windowsLicenseKey2012" --hidden-value true
+
+#$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name rundeckJobId --value "$rundeckJobId2012R2"
+#$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name wimImageName --value "$wimImageName2012R2"
+#$base_command os set-parameter --operatingsystem "Windows Server 2012 R2" --name windowsLicenseKey --value "$windowsLicenseKey2012R2" --hidden-value true
+
+$base_command os set-parameter --operatingsystem "Windows Server 2016" --name rundeckJobId --value "$rundeckJobId2016"
+$base_command os set-parameter --operatingsystem "Windows Server 2016" --name wimImageName --value "$wimImageName2016"
+$base_command os set-parameter --operatingsystem "Windows Server 2016" --name windowsLicenseKey --value "$windowsLicenseKey2016" --hidden-value true

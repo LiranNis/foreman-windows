@@ -189,6 +189,7 @@ Link all the created templates as well as the installation media and partition t
 To render the the templates correctly, some parameters need to be added. The can be globals, or put them on
 a hostgroup. Most of them make the most sense as parameter on the the OS. Also, almost none are
 required and have defaults. For the most up to date desciption see the template itself.
+If you run the bash script then some of the parameters will be injected and you can edit them in the foreman UI or edit [global_vars.conf](/templates/vars/global_vars.conf) and rerun the script
 
 ### Important parameters
 #### Required

@@ -18,10 +18,10 @@ params:
 - windowsLicenseOwner: Company, INC # Legal owner of the Windows license key
 -%>
 <%-
-  system_locale = @host.params['systemLocale'] ? @host.params['systemLocale'] : 'en-US' 
-  system_ui_lang = @host.params['systemUILanguage'] ? @host.params['systemUILanguage'] : 'en-US'
+  system_locale = host_param('systemLocale') ? host_param('systemLocale') : 'en-US' 
+  system_ui_lang = host_param('systemUILanguage') ? host_param('systemUILanguage') : 'en-US'
   setup_ui_lang = 'en-US'
-  system_timezone = @host.params['systemTimeZone'] ? @host.params['systemTimeZone'] : 'GMT Standard Time'
+  system_timezone = host_param('systemTimeZone') ? host_param('systemTimeZone') : 'GMT Standard Time'
 -%>
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend">
@@ -40,7 +40,7 @@ params:
                 <OSImage>
                     <InstallFrom>
                         <MetaData wcm:action="add">
-                                <Value><%= @host.params['wimImageName'] -%></Value>  
+                                <Value><%= host_param('wimImageName') -%></Value>  
                         </MetaData>
                     </InstallFrom>
                     <InstallToAvailablePartition>true</InstallToAvailablePartition>
@@ -74,18 +74,18 @@ params:
             <UserAccounts>
                 <AdministratorPassword>
                     <PlainText>true</PlainText>
-                    <Value><%= @host.params['administratorPassword'] %></Value>
+                    <Value><%= host_param('administratorPassword') %></Value>
                 </AdministratorPassword>
                 <% if snippet('windows_local_users') -%>
                   <%= snippet('windows_local_users') -%>
                 <% end %>
             </UserAccounts>
             <TimeZone><%= system_timezone -%></TimeZone>
-            <% if @host.params['windowsLicenseOwner'] -%>
-              <RegisteredOwner><%= @host.params['windowsLicenseOwner'] -%></RegisteredOwner>
+            <% if host_param('windowsLicenseOwner') -%>
+              <RegisteredOwner><%= host_param('windowsLicenseOwner') -%></RegisteredOwner>
             <% end -%>
-            <% if @host.params['windowsLicenseOrganization'] -%>
-              <RegisteredOrganization><%= @host.params['windowsLicenseOrganization'] -%></RegisteredOrganization>
+            <% if host_param('windowsLicenseOrganization') -%>
+              <RegisteredOrganization><%= host_param('windowsLicenseOrganization') -%></RegisteredOrganization>
             <% end -%>
             <OOBE>
                 <HideEULAPage>true</HideEULAPage>
@@ -99,8 +99,8 @@ params:
                 <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
             </OOBE>
             <ShowWindowsLive>false</ShowWindowsLive>
-            <% if @host.params['windowsLicenseKey'] && !@host.params['windowsLicenseKey'].empty? -%>
-              <ProductKey><%= @host.params['windowsLicenseKey'].to_s %></ProductKey>
+            <% if host_param('windowsLicenseKey') && !host_param('windowsLicenseKey').empty? -%>
+              <ProductKey><%= host_param('windowsLicenseKey').to_s %></ProductKey>
             <% end -%>
         </component>
     </settings>
@@ -117,11 +117,11 @@ params:
         </component>
         <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <ComputerName><%= @host.shortname -%></ComputerName>
-            <% if @host.params['windowsLicenseOwner'] -%>
-              <RegisteredOwner><%= @host.params['windowsLicenseOwner'] -%></RegisteredOwner>
+            <% if host_param('windowsLicenseOwner') -%>
+              <RegisteredOwner><%= host_param('windowsLicenseOwner') -%></RegisteredOwner>
             <% end -%>
-            <% if @host.params['windowsLicenseOrganization'] -%>
-              <RegisteredOrganization><%= @host.params['windowsLicenseOrganization'] -%></RegisteredOrganization>
+            <% if host_param('windowsLicenseOrganization') -%>
+              <RegisteredOrganization><%= host_param('windowsLicenseOrganization') -%></RegisteredOrganization>
             <% end -%>
             <TimeZone><%= system_timezone -%></TimeZone>
         </component>

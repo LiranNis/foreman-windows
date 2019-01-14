@@ -22,13 +22,13 @@ params:
 -%>
 <%-
   # safemode renderer does not support unary negation
-  salt_enabled = @host.params['salt_master'] ? true : false
+  salt_enabled = host_param('salt_master') ? true : false
   chef_enabled = @host.respond_to?(:chef_proxy) && @host.chef_proxy
-  foreman_debug = @host.params['foremanDebug'] == 'true' ? true : false
+  foreman_debug = host_param('foremanDebug') == 'true' ? true : false
 -%>
 @echo off
 
-<% unless @host.params['localAdminAccountDisabled'] -%>
+<% unless host_param('localAdminAccountDisabled') -%>
   echo Activating administrator
   net user administrator /active:yes
 <% end -%>
@@ -38,11 +38,11 @@ params:
   <%= snippets "windows_networking_setup" %>
 <% end -%>
 
-<% if @host.params['preferIPv4'] -%>
+<% if host_param('preferIPv4') -%>
   reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponents /d 0xFF /f
 <% end -%>
 
-<% if @host.params['disableIPv6'] -%>
+<% if host_param('disableIPv6') -%>
   reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /t REG_DWORD /v DisabledComponents /d 0xFFFFFFFF /f
 <% end -%>
 
@@ -69,9 +69,9 @@ params:
 
   echo Network test OK!
 
-  <% if @host.params['ntpSever'] -%>
+  <% if host_param('ntpSever') -%>
     echo setting time server
-    w32tm /config /manualpeerlist:<%= @host.params['ntpSever'] %> /syncfromflags:manual /update
+    w32tm /config /manualpeerlist:<%= host_param('ntpSever') %> /syncfromflags:manual /update
   <% end %>
 
   echo sync time
@@ -80,14 +80,14 @@ params:
 
   :: You can join your machine to the domain right here >
 
-  <% if @host.params['domainJoinAccount'] and @host.params['domainJoinAccountPassword'] -%>
+  <% if host_param('domainJoinAccount') and host_param('domainJoinAccountPassword') -%>
     echo joining domain
     powershell.exe -OutputFormat text -ExecutionPolicy remotesigned -command c:\deploy\joinDomain.ps1
   <% end %>
 
   :: < You can join your machine to the domain right here
 
-  <% if @host.params['localAdminAccountDisabled'] %>
+  <% if host_param('localAdminAccountDisabled') %>
     echo Disabling %tempAdminUser%
     net user %tempAdminUser% %tempAdminUser% /active:no
   <% end %>
@@ -106,7 +106,7 @@ params:
     <%= snippets "windows_extra_finish_commands" %>
   <% end -%>
   
-  <% unless @host.params['rundeckBuilt'] -%>
+  <% unless host_param('rundeckBuilt') -%>
     echo Tell foreman build has finished
     wget.exe <%= foreman_url('built') %>
   <% end -%>

@@ -1,0 +1,16 @@
+<%#
+kind: PXELinux
+name: Windows default PXELinux
+oses:
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows
+-%>
+#!ipxe
+kernel <%= @host.os.medium_uri(@host) %>wimboot
+initrd <%= @host.os.medium_uri(@host) %>boot/bcd bcd
+initrd <%= @host.os.medium_uri(@host) %>boot/boot.sdi boot.sdi
+initrd <%= @host.os.medium_uri(@host) %>sources/boot.wim boot.wim
+boot

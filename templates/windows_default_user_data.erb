@@ -15,20 +15,20 @@ params:
 - computerDomain: domain.com # domain to join, optional
 %>
 <%
-if @host.params['computerDomain']
-  domain_name = @host.params['computerDomain']
+if host_param('computerDomain')
+  domain_name = host_param('computerDomain')
 else
   domain_name = @host.domain
 end
-if @host.params['computerOU'] and ( @host.params['computerOU'] != 'automatic' and @host.params['computerOU'] != 'default' )
-  computer_ou = @host.params['computerOU']
-elsif snippet('windows_ou_from_hostgroup') and @host.params['computerOU'] == 'automatic'
+if host_param('computerOU') and ( host_param('computerOU') != 'automatic' and host_param('computerOU') != 'default' )
+  computer_ou = host_param('computerOU')
+elsif snippet('windows_ou_from_hostgroup') and host_param('computerOU') == 'automatic'
   computer_ou = snippet('windows_ou_from_hostgroup')
 else
   computer_ou = false
 end
 %>
-$user = '<%= @host.params['domainJoinAccount'] -%>'
-$passwd = ConvertTo-SecureString -String '<%= @host.params['domainJoinAccountPassword'] -%>' -AsPlainText -Force
+$user = '<%= host_param('domainJoinAccount') -%>'
+$passwd = ConvertTo-SecureString -String '<%= host_param('domainJoinAccountPassword') -%>' -AsPlainText -Force
 $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $user, $passwd
 Add-Computer -DomainName '<%= domain_name %>' -Credential $Credential <% if computer_ou %>-OUPath '<%= computer_ou %>'<% end %> -PassThru

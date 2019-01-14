@@ -14,7 +14,7 @@ params:
 - windowsLicenseOwner: Company, INC # Legal owner of the Windows license key
 - extraFilesCutDirs: directories wget should strip when downloading extra files.
 -%>
-<% cut_dirs = @host.params['extraFilesCutDirs'] ? @host.params['extraFilesCutDirs'] : '3' -%>
+<% cut_dirs = host_param('extraFilesCutDirs') ? host_param('extraFilesCutDirs') : '3' -%>
 @echo off
 
 set WGET=x:\wimaging\deploy\wget64.exe
@@ -24,7 +24,7 @@ set WGET=x:\wimaging\deploy\wget64.exe
 %WGET% <%= @host.os.medium_uri(@host).to_s %>/sources/install.wim -O C:\install.wim
 
 echo Write the install image to the partition
-dism.exe /apply-image /imagefile:C:\install.wim /name:"<%= @host.params['wimImageName'] %>" /ApplyDir:C:\
+dism.exe /apply-image /imagefile:C:\install.wim /name:"<%= host_param('wimImageName') %>" /ApplyDir:C:\
 
 echo removing install.wim
 del /q /s C:\install.wim
@@ -60,7 +60,7 @@ copy x:\wimaging\deploy\wget64.exe C:\Windows\wget.exe
 copy x:\wimaging\deploy\sdelete.exe C:\Windows\
 copy x:\wimaging\deploy\nvspbind.exe C:\deploy\
 IF not exist C:\Windows\Setup\Scripts (md C:\Windows\Setup\Scripts)
-<% logDest = @host.params['foremanDebug'] ? "c:\\foreman.log" : "NUL" %>
+<% logDest = host_param('foremanDebug') ? "c:\\foreman.log" : "NUL" %>
 echo call C:\deploy\foreman-finish.bat ^> <%= logDest %> 2^>^&1 > C:\Windows\Setup\Scripts\SetupComplete.cmd
 
 <% if foreman_url('user_data') %>

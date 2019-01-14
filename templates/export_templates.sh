@@ -10,6 +10,7 @@ base_command="hammer --verify-ssl false -u $user -p $pass"
 $base_command template dump --name "Windows default finish"  > windows_default_finish.erb
 $base_command template dump --name "Windows default"  > windows_default_provision.erb
 $base_command template dump --name "Windows default PXELinux"  > windows_default_pxelinux.erb
+$base_command template dump --name "Windows default iPXE"  > windows_default_ipxe.erb
 $base_command template dump --name "Windows default script"  > windows_default_script.erb
 $base_command template dump --name "windows_extra_finish_commands"  > snip_windows_extra_finish_commands.erb
 $base_command template dump --name "windows_local_users"  > snip_windows_local_users.xml.erb
@@ -17,5 +18,8 @@ $base_command template dump --name "windows_ou_from_hostgroup"  > snip_windows_o
 $base_command template dump --name "Windows default user data"  > windows_default_user_data.erb
 $base_command template dump --name "windows_networking_setup"  > snip_windows_networking_setup.erb
 
+
 # 4. Export partition table
-$base_command partition-table dump --name "Windows default diskpart" > windows_default_diskpart.erb
+$base_command partition-table dump --name "Windows BIOS" > windows_bios.erb
+$base_command partition-table dump --name "Windows EFI" > windows_efi.erb
+

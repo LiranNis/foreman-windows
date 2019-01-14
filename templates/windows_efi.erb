@@ -1,0 +1,39 @@
+<%#
+kind: ptable
+name: Wimaging default ptable
+oses:
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+- Windows
+%>
+:: Disk Partitioning Layout
+
+set DPFILE=%SYSTEMDRIVE%\dp.txt
+
+:: Append commands to Diskpart file
+echo select disk 0 > %DPFILE%
+echo clean >> %DPFILE%
+echo convert gpt >> %DPFILE%
+rem == 1. System partition =========================
+echo create partition efi size=100  >> %DPFILE%
+rem    ** NOTE: For Advanced Format 4Kn drives,
+rem               change this value to size = 260 ** 
+echo format quick fs=fat32 label="System" >> %DPFILE%
+echo assign letter="S" >> %DPFILE%
+rem == 2. Microsoft Reserved (MSR) partition =======
+echo create partition msr size=16 >> %DPFILE%
+rem == 3. Windows partition ========================
+rem ==    Create and prepare the Windows partition ==========
+echo create partition primary >> %DPFILE%
+echo format quick fs=ntfs label="Windows" >> %DPFILE%
+echo assign letter="C" >> %DPFILE%
+echo list volume >> %DPFILE%
+echo exit >> %DPFILE%
+
+:: Execute Diskpart with file as script argument
+diskpart /s %DPFILE%
+
+:: Remove Diskpart script file
+del %DPFILE%

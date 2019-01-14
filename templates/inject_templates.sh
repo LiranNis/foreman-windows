@@ -22,6 +22,7 @@ operatingsystems='"Windows Server 2008 R2","Windows Server 2012 R2","Windows Ser
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file windows_default_finish.erb --name "Windows default finish" --type finish
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file windows_default_provision.erb --name  "Windows default" --type "provision"
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file windows_default_pxelinux.erb --name "Windows default PXELinux" --type "PXELinux"
+$base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file windows_default_ipxe.erb --name "Windows default iPXE" --type "iPXE"
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file windows_default_script.erb --name "Windows default script" --type "script"
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file snip_windows_extra_finish_commands.erb --name "windows_extra_finish_commands" --type "snippet"
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file snip_windows_local_users.xml.erb --name "windows_local_users" --type "snippet"
@@ -30,15 +31,17 @@ $base_command template create --operatingsystems "Windows Server 2008","Windows 
 $base_command template create --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016" --file snip_windows_networking_setup.erb --name "windows_networking_setup" --type "snippet"
 
 # 4. Add partition table and associate it
-$base_command partition-table create --os-family Windows --name "Windows default diskpart" --file "windows_default_diskpart.erb"  --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016"
+$base_command partition-table create --os-family Windows --name "Windows BIOS" --file "windows_bios.erb"  --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016"
+$base_command partition-table create --os-family Windows --name "Windows EFI" --file "windows_efi.erb"  --operatingsystems "Windows Server 2008","Windows Server 2008 R2","Windows Server 2012","Windows Server 2012 R2","Windows Server 2016"
 
 # 5. Get template IDs
 finish_id=$($base_command template list| grep "Windows default finish" | grep -o '^[0-9]*')
 provision_id=$($base_command template list| grep "Windows default" | grep -o '^[0-9]*')
 pxelinux_id=$($base_command template list| grep "Windows default PXELinux" | grep -o '^[0-9]*')
+ipxe_id=$($base_command template list| grep "Windows default PXELinux" | grep -o '^[0-9]*')
 script_id=$($base_command template list| grep "Windows default script" | grep -o '^[0-9]*')
 user_data_id=$($base_command template list| grep "Windows default user data" | grep -o '^[0-9]*')
-template_ids=( $finish_id $provision_id $pxelinux_id $script_id $user_data_id )
+template_ids=( $finish_id $provision_id $pxelinux_id $ipxe_id $script_id $user_data_id )
 echo $template_ids
 
 # 6. Get OS ids
